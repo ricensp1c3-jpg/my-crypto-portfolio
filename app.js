@@ -16,13 +16,35 @@ const TICKER_POOL = [
   { symbol: "SOLUSDT", displaySymbol: "SOL/USDT" },
   { symbol: "BNBUSDT", displaySymbol: "BNB/USDT" },
   { symbol: "XRPUSDT", displaySymbol: "XRP/USDT" },
-  { symbol: "ADAUSDT", displaySymbol: "ADA/USDT" },
-  { symbol: "AVAXUSDT", displaySymbol: "AVAX/USDT" },
-  { symbol: "DOGEUSDT", displaySymbol: "DOGE/USDT" }
+  { symbol: "ADAUSDT", displaySymbol: "ADA/USDT" }
 ];
 
 const TIMEFRAMES = ["2h", "4h", "8h", "12h"];
 let currentTrades = [];
+
+// Top 20 Competition Traders Leaderboard Data ($77,000 to $14,119)
+const LEADERBOARD_DATA = [
+  { rank: 1, name: "CryptoWhale_X", pnl: 77000 },
+  { rank: 2, name: "AlphaTrader99", pnl: 71400 },
+  { rank: 3, name: "SatoshiDream", pnl: 65800 },
+  { rank: 4, name: "BullishViper", pnl: 61200 },
+  { rank: 5, name: "ApexScalper", pnl: 56900 },
+  { rank: 6, name: "NovaTrader_88", pnl: 52100 },
+  { rank: 7, name: "ZenithTrades", pnl: 48300 },
+  { rank: 8, name: "ShadowMargin", pnl: 44000 },
+  { rank: 9, name: "QuantumCap", pnl: 40500 },
+  { rank: 10, name: "MatrixBull", pnl: 37200 },
+  { rank: 11, name: "Vanguard_K", pnl: 34100 },
+  { rank: 12, name: "SolanaKing", pnl: 31000 },
+  { rank: 13, name: "CyberTrader7", pnl: 28400 },
+  { rank: 14, name: "HyperTrend", pnl: 25900 },
+  { rank: 15, name: "DeltaHedge_M", pnl: 23200 },
+  { rank: 16, name: "OrbitalTrades", pnl: 21000 },
+  { rank: 17, name: "KryptoKnight", pnl: 19100 },
+  { rank: 18, name: "MacroRider", pnl: 17300 },
+  { rank: 19, name: "VeloxTrade", pnl: 15600 },
+  { rank: 20, name: "AeroTrader_J", pnl: 14119 }
+];
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -44,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (authBtn) authBtn.addEventListener('click', handleAuth);
 
   initTradingViewCharts();
+  renderLeaderboard();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
   
@@ -55,11 +78,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// 3. TradingView Chart Initialization Engine
+// 3. TradingView Chart Engine
 function initTradingViewCharts() {
   const renderCharts = () => {
     if (typeof TradingView !== "undefined") {
-      // Desktop Chart
       new TradingView.widget({
         "autosize": true,
         "symbol": "BINANCE:BTCUSDT",
@@ -69,25 +91,19 @@ function initTradingViewCharts() {
         "style": "1",
         "locale": "en",
         "toolbar_bg": "#181a20",
-        "enable_publishing": false,
-        "allow_symbol_change": true,
-        "container_id": "tradingview_desktop"
+        "container_id": "tradingview_desktop_1"
       });
 
-      // Mobile Chart
       new TradingView.widget({
         "autosize": true,
-        "symbol": "BINANCE:BTCUSDT",
+        "symbol": "BINANCE:ETHUSDT",
         "interval": "15",
         "timezone": "Etc/UTC",
         "theme": "dark",
         "style": "1",
         "locale": "en",
         "toolbar_bg": "#181a20",
-        "enable_publishing": false,
-        "allow_symbol_change": true,
-        "container_id": "tradingview_mobile",
-        "hide_side_toolbar": true
+        "container_id": "tradingview_desktop_2"
       });
     } else {
       setTimeout(renderCharts, 250);
@@ -97,7 +113,44 @@ function initTradingViewCharts() {
   renderCharts();
 }
 
-// 4. Toggle Auth Mode
+// 4. Customization Toggles
+function changeTheme(themeName) {
+  document.body.setAttribute('data-theme', themeName);
+}
+
+function changeLayout(layoutType) {
+  const chartBox = document.getElementById('chart-box');
+  const chart2 = document.getElementById('chart-2-container');
+
+  if (layoutType === 'split') {
+    chartBox.classList.add('split-view');
+    chart2.classList.remove('hidden');
+  } else {
+    chartBox.classList.remove('split-view');
+    chart2.classList.add('hidden');
+  }
+}
+
+function toggleBox(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('hidden');
+}
+
+// 5. Render Leaderboard
+function renderLeaderboard() {
+  const tbody = document.getElementById('leaderboard-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = LEADERBOARD_DATA.map(t => `
+    <tr>
+      <td><b>#${t.rank}</b></td>
+      <td>${t.name}</td>
+      <td class="green">+$${t.pnl.toLocaleString()}</td>
+    </tr>
+  `).join('');
+}
+
+// 6. Toggle Auth Mode
 function toggleAuthMode() {
   isSignUpMode = !isSignUpMode;
   
@@ -115,14 +168,14 @@ function toggleAuthMode() {
     usernameInput.classList.remove('hidden');
   } else {
     title.innerText = "Sign In";
-    sub.innerText = "Access your trading account";
+    sub.innerText = "Access terminal workspace";
     btn.innerText = "Log In";
     toggle.innerText = "Create an account";
     usernameInput.classList.add('hidden');
   }
 }
 
-// 5. Auth Action Handler
+// 7. Auth Action Handler
 async function handleAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value.trim();
@@ -160,7 +213,7 @@ async function createUserProfileRow(userId, username) {
   if (error) console.error("Profile creation error:", error.message);
 }
 
-// 6. Profile Loader
+// 8. Profile Loader
 async function loadUserProfile(user) {
   try {
     let { data } = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
@@ -187,7 +240,7 @@ async function loadUserProfile(user) {
   }
 }
 
-// 7. Smooth Overall P&L Generator
+// 9. Smooth Overall P&L Generator
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
@@ -223,7 +276,7 @@ function startSmoothPnL(investedAmount) {
   pnlInterval = setInterval(updateTicker, 3000);
 }
 
-// 8. Live WebSocket Positions Engine
+// 10. Live WebSocket Positions Engine
 function generateTradeSetup(tickerObj) {
   const isLong = Math.random() > 0.45;
   const leverage = getRandomInt(9, 105);
@@ -245,7 +298,7 @@ function generateTradeSetup(tickerObj) {
 
 function initRealTrades() {
   const shuffled = [...TICKER_POOL].sort(() => 0.5 - Math.random());
-  const selectedTickers = shuffled.slice(0, 4);
+  const selectedTickers = shuffled.slice(0, 3);
 
   currentTrades = selectedTickers.map(t => generateTradeSetup(t));
   connectBinanceWebSocket();
@@ -317,7 +370,7 @@ function renderTrades() {
   });
 }
 
-// 9. Logout
+// 11. Logout
 async function logout() {
   if (pnlInterval) clearInterval(pnlInterval);
   if (binanceSocket) binanceSocket.close();

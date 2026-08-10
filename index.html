@@ -7,7 +7,7 @@
   <!-- EMBEDDED CUTE BABY SHARK FAVICON -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%234FC3F7'/><path d='M20,55 Q50,25 80,55 Q50,75 20,55 Z' fill='%2390CAF9'/><path d='M35,55 Q50,35 65,55' fill='%23FFFFFF'/><polygon points='45,20 60,38 35,38' fill='%2364B5F6'/><circle cx='62' cy='45' r='5' fill='%23000000'/><circle cx='64' cy='43' r='2' fill='%23FFFFFF'/><path d='M65,58 Q72,62 65,66' stroke='%23FF8A80' stroke-width='3' fill='none'/></svg>" type="image/svg+xml">
 
-  <title>TradEaTravel Pro</title>
+  <title>TradEaTravel Pro Terminal</title>
 
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -16,7 +16,8 @@
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
   <style>
-    :root {
+    /* Theme Engine Variables */
+    :root[data-theme="dark"] {
       --bg-main: #0b0e11;
       --bg-card: #181a20;
       --bg-card-hover: #1e2329;
@@ -28,6 +29,34 @@
       --red: #f6465d;
       --red-bg: rgba(246, 70, 93, 0.12);
       --accent: #f0b90b;
+    }
+
+    :root[data-theme="light"] {
+      --bg-main: #f0f3f8;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f7f9fa;
+      --border-color: #e1e5ea;
+      --text-main: #1e2329;
+      --text-muted: #707a8a;
+      --green: #03a66d;
+      --green-bg: rgba(3, 166, 109, 0.12);
+      --red: #cf304a;
+      --red-bg: rgba(207, 48, 74, 0.12);
+      --accent: #f0b90b;
+    }
+
+    :root[data-theme="cyberpunk"] {
+      --bg-main: #050510;
+      --bg-card: #0d0e26;
+      --bg-card-hover: #161845;
+      --border-color: #ff007f;
+      --text-main: #00f0ff;
+      --text-muted: #b040ff;
+      --green: #00ff66;
+      --green-bg: rgba(0, 255, 102, 0.15);
+      --red: #ff0055;
+      --red-bg: rgba(255, 0, 85, 0.15);
+      --accent: #ffe600;
     }
 
     * {
@@ -42,6 +71,7 @@
       color: var(--text-main);
       min-height: 100vh;
       width: 100vw;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     /* Layout */
@@ -55,14 +85,14 @@
 
     /* Sidebar Area */
     .sidebar {
-      width: 320px;
-      min-width: 320px;
+      width: 380px;
+      min-width: 380px;
       background: var(--bg-card);
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       padding: 12px;
-      gap: 10px;
+      gap: 12px;
       overflow-y: auto;
       z-index: 10;
     }
@@ -93,7 +123,6 @@
       flex-grow: 1;
     }
 
-    /* Upper Right Logout Button (Mobile Only) */
     .btn-logout-mobile {
       display: none;
       background: rgba(246, 70, 93, 0.15);
@@ -104,7 +133,25 @@
       padding: 4px 8px;
       border-radius: 4px;
       cursor: pointer;
-      white-space: nowrap;
+    }
+
+    /* Top Control Controls */
+    .control-row {
+      display: flex;
+      gap: 6px;
+      justify-content: space-between;
+    }
+
+    .control-row select, .control-row button {
+      background: var(--bg-main);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-grow: 1;
     }
 
     /* Stats Grid */
@@ -134,7 +181,14 @@
       font-weight: 700;
     }
 
-    /* Trades Section */
+    /* Section Component */
+    .panel-box {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
     .section-title {
       font-size: 0.72rem;
       color: var(--text-muted);
@@ -144,7 +198,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 4px;
+      margin-bottom: 6px;
     }
 
     .live-dot {
@@ -164,66 +218,104 @@
     }
 
     .trade-card {
-      background: var(--bg-main);
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 6px;
       padding: 8px 10px;
     }
 
-    .trade-row-top {
+    .trade-row-top, .trade-row-bottom {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
     }
 
-    .symbol-name {
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-
-    .badge {
-      font-size: 0.65rem;
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-weight: 700;
-    }
-
+    .symbol-name { font-size: 0.8rem; font-weight: 700; }
+    .badge { font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; font-weight: 700; }
     .badge-long { background: var(--green-bg); color: var(--green); }
     .badge-short { background: var(--red-bg); color: var(--red); }
-    
     .badge-active { border: 1px solid var(--green); color: var(--green); }
     .badge-inactive { border: 1px solid var(--text-muted); color: var(--text-muted); }
-
-    .trade-row-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-    }
-
-    .price-text {
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-
-    .pnl-text {
-      font-weight: 700;
-      font-family: monospace;
-    }
+    .price-text { color: var(--text-muted); font-family: monospace; font-size: 0.75rem; }
+    .pnl-text { font-weight: 700; font-family: monospace; font-size: 0.75rem; }
 
     .green { color: var(--green); }
     .red { color: var(--red); }
+
+    /* News & Macro Lists */
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+      font-size: 0.72rem;
+    }
+
+    .feed-item {
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 4px;
+    }
+
+    .feed-title { font-weight: 600; color: var(--text-main); }
+    .feed-time { color: var(--text-muted); font-size: 0.65rem; }
+
+    /* Heatmap Grid */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+
+    .heatmap-tile {
+      padding: 6px 2px;
+      text-align: center;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    /* Leaderboard Table */
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.7rem;
+    }
+
+    .leaderboard-table th {
+      text-align: left;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+    }
+
+    .leaderboard-table td {
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Orderbook Tape */
+    .depth-tape {
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-size: 0.68rem;
+    }
 
     /* Desktop Chart Panel */
     .chart-box {
       flex-grow: 1;
       height: 100%;
       background: var(--bg-main);
-      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
     }
 
-    /* Desktop Bottom Logout Button */
+    .chart-box.split-view {
+      grid-template-columns: 1fr 1fr;
+    }
+
     .btn-logout-desktop {
       margin-top: auto;
       background: rgba(246, 70, 93, 0.1);
@@ -237,53 +329,14 @@
       width: 100%;
     }
 
-    /* Embedded Mobile Chart Section */
-    .mobile-chart-section {
-      display: none;
-      width: 100%;
-      height: 420px;
-      margin-top: 10px;
-      border-top: 1px solid var(--border-color);
-      padding-top: 10px;
-      touch-action: auto !important;
-    }
-
-    /* Responsive Mobile Overrides */
-    @media (max-width: 768px) {
-      body {
-        overflow-y: auto;
-      }
-
-      .app-container {
-        flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-        overflow: visible;
-      }
-
-      .sidebar {
-        width: 100%;
-        min-width: 100%;
-        height: auto;
-        border-right: none;
-        overflow: visible;
-      }
-
-      .chart-box {
-        display: none;
-      }
-
-      .mobile-chart-section {
-        display: block;
-      }
-
-      .btn-logout-desktop {
-        display: none;
-      }
-
-      .btn-logout-mobile {
-        display: block;
-      }
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      body { overflow-y: auto; }
+      .app-container { flex-direction: column; height: auto; }
+      .sidebar { width: 100%; min-width: 100%; height: auto; }
+      .chart-box { display: none; }
+      .btn-logout-desktop { display: none; }
+      .btn-logout-mobile { display: block; }
     }
 
     /* Auth Overlay */
@@ -332,31 +385,23 @@
       cursor: pointer;
     }
 
-    .auth-toggle {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      margin-top: 12px;
-      display: block;
-      cursor: pointer;
-    }
-
     .hidden { display: none !important; }
   </style>
 </head>
-<body>
+<body data-theme="dark">
 
   <!-- AUTHENTICATION OVERLAY -->
   <div id="auth-modal" class="auth-overlay">
     <div class="auth-card">
       <h3 id="auth-title" style="color: var(--text-main); margin-bottom: 4px;">Sign In</h3>
-      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px;" id="auth-sub">Access your trading account</p>
+      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px;" id="auth-sub">Access terminal workspace</p>
       
       <input type="email" id="auth-email" placeholder="Email">
       <input type="password" id="auth-password" placeholder="Password">
       <input type="text" id="auth-username" placeholder="Username" class="hidden">
 
       <button id="auth-btn" class="btn-auth">Log In</button>
-      <span class="auth-toggle" id="auth-toggle">Create an account</span>
+      <span class="auth-toggle" id="auth-toggle" style="color: var(--text-muted); font-size: 0.75rem; margin-top: 12px; display: block; cursor: pointer;">Create an account</span>
     </div>
   </div>
 
@@ -366,13 +411,25 @@
     <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
-      <!-- HEADER WITH LOGOUT BUTTON AT UPPER RIGHT FOR MOBILE -->
+      <!-- HEADER & LOGOUT -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
         <span class="brand-title" id="account-title">Trading Account</span>
-        
-        <!-- MOBILE LOGOUT BUTTON (UPPER RIGHT) -->
         <button class="btn-logout-mobile" onclick="logout()">LOG OUT</button>
+      </div>
+
+      <!-- THEME & LAYOUT TOGGLES -->
+      <div class="control-row">
+        <select id="theme-select" onchange="changeTheme(this.value)">
+          <option value="dark">🎨 Dark Theme</option>
+          <option value="light">☀️ Light Theme</option>
+          <option value="cyberpunk">⚡ Cyberpunk</option>
+        </select>
+
+        <select id="layout-select" onchange="changeLayout(this.value)">
+          <option value="single">📺 Single Chart</option>
+          <option value="split">📺 Split View (2x)</option>
+        </select>
       </div>
 
       <!-- PORTFOLIO STATS GRID -->
@@ -387,34 +444,116 @@
         </div>
       </div>
 
-      <!-- ACTIVE TRADES LIST -->
+      <!-- BEGINNER RISK TIPS COMPONENT -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>💡 Beginner Risk Tips</span>
+          <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
+        </div>
+        <div id="risk-content" style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;">
+          • <b>1% Rule:</b> Never risk more than 1% of total portfolio on a single trade.<br>
+          • <b>Set Stop Losses:</b> Protect equity before planning profits.<br>
+          • <b>Leverage Warning:</b> High leverage (20x+) multiplies both gains and liquidations.
+        </div>
+      </div>
+
+      <!-- LIVE POSITIONS -->
       <div class="section-title">
         <span><span class="live-dot"></span>Active Positions</span>
         <span style="font-size: 0.65rem; color: var(--text-muted);">BINANCE LIVE</span>
       </div>
 
-      <div id="trades-container" class="trades-list">
-        <!-- Live WebSocket Trades Render Here -->
+      <div id="trades-container" class="trades-list"></div>
+
+      <!-- HEATMAP & LIQUIDATIONS -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>🔥 Heatmap & Liquidations</span>
+        </div>
+        <div class="heatmap-grid">
+          <div class="heatmap-tile green-bg green">BTC<br>+2.4%</div>
+          <div class="heatmap-tile green-bg green">ETH<br>+1.8%</div>
+          <div class="heatmap-tile red-bg red">SOL<br>-3.1%</div>
+          <div class="heatmap-tile green-bg green">BNB<br>+0.5%</div>
+        </div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 6px;">
+          ⚡ BTC Short Liquidation Wall: <b>$71,800</b>
+        </div>
       </div>
 
-      <!-- EMBEDDED MOBILE CHART -->
-      <div class="mobile-chart-section">
-        <div class="section-title" style="margin-bottom: 8px;">
-          <span>Live Interactive Chart</span>
+      <!-- NEWS & SENTIMENT FEED -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>📰 News & Sentiment</span>
+          <span id="sentiment-badge" class="badge badge-long">62 GREED</span>
         </div>
-        <div class="tradingview-widget-container" style="height:380px;width:100%">
-          <div id="tradingview_mobile" style="height:100%;width:100%"></div>
+        <div class="feed-list" id="news-feed">
+          <div class="feed-item">
+            <div class="feed-title">Bitcoin holds support above key moving averages</div>
+            <div class="feed-time">10m ago • Macro</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-title">Fed signals potential rate adjustments next quarter</div>
+            <div class="feed-time">25m ago • Economy</div>
+          </div>
         </div>
       </div>
 
-      <!-- DESKTOP LOGOUT BUTTON -->
-      <button class="btn-logout-desktop" onclick="logout()">Log Out</button>
+      <!-- WHALE TRACKING & LEVEL 2 ORDER FLOW -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>🐋 Whale Tracker & L2 Flow</span>
+        </div>
+        <div class="depth-tape red">
+          <span>ASK 68,450.00</span>
+          <span>14.2 BTC</span>
+        </div>
+        <div class="depth-tape green">
+          <span>BID 68,410.00</span>
+          <span>28.9 BTC</span>
+        </div>
+        <div style="font-size: 0.65rem; color: var(--accent); margin-top: 4px;" id="whale-alert">
+          🚨 Whale Alert: 1,200 BTC moved to Binance Wallet
+        </div>
+      </div>
+
+      <!-- MACRO ECONOMY & CORRELATIONS -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>🌐 Macro & Asset Correlations</span>
+        </div>
+        <div style="font-size: 0.7rem; display:flex; justify-content:space-between; color: var(--text-muted);">
+          <span>BTC / S&P500 Corr: <b class="green">+0.74</b></span>
+          <span>DXY Index: <b>103.20</b></span>
+        </div>
+      </div>
+
+      <!-- TRADING COMPETITION LEADERBOARD -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>🏆 Top Traders Competition</span>
+        </div>
+        <div style="max-height: 120px; overflow-y: auto;">
+          <table class="leaderboard-table">
+            <thead>
+              <tr><th>Rank</th><th>Trader</th><th>P&L ($)</th></tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DESKTOP LOGOUT -->
+      <button class="btn-logout-desktop" onclick="logout()">Log Out Workspace</button>
     </div>
 
     <!-- DESKTOP RIGHT CHART CONTAINER -->
-    <div class="chart-box">
+    <div class="chart-box" id="chart-box">
       <div class="tradingview-widget-container" style="height:100%;width:100%">
-        <div id="tradingview_desktop" style="height:100%;width:100%"></div>
+        <div id="tradingview_desktop_1" style="height:100%;width:100%"></div>
+      </div>
+      <div class="tradingview-widget-container hidden" id="chart-2-container" style="height:100%;width:100%">
+        <div id="tradingview_desktop_2" style="height:100%;width:100%"></div>
       </div>
     </div>
 
