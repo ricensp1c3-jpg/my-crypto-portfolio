@@ -205,7 +205,7 @@
     .badge-long { background: var(--green-bg); color: var(--green); }
     .badge-short { background: var(--red-bg); color: var(--red); }
     .badge-active { border: 1px solid var(--green); color: var(--green); }
-    .badge-inactive { border: 1px solid var(--text-muted); color: var(--text-muted); }
+    .badge-stopped { border: 1px solid var(--red); color: var(--red); }
     .price-text { color: var(--text-muted); font-family: monospace; font-size: 0.72rem; }
     .pnl-text { font-weight: 700; font-family: monospace; font-size: 0.72rem; }
 
@@ -391,7 +391,7 @@
 
     .hidden { display: none !important; }
 
-    /* MOBILE / SMALL SCREEN RESPONSIVENESS FIX */
+    /* MOBILE RESPONSIVENESS */
     @media (max-width: 900px) {
       html, body {
         overflow-x: hidden;
@@ -459,7 +459,7 @@
     <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
-      <!-- HEADER: 100px Logo + Account Title & Account UID -->
+      <!-- HEADER -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
         <div class="brand-title-wrap">
@@ -468,7 +468,7 @@
         </div>
       </div>
 
-      <!-- VIEW LAYOUT ENGINE SWITCHER -->
+      <!-- VIEW SWITCHER -->
       <div class="control-row">
         <select id="layout-select" onchange="changeLayout(this.value)">
           <option value="single">📺 Single Chart View</option>
@@ -476,7 +476,7 @@
         </select>
       </div>
 
-      <!-- METRICS & SUBSCRIBER STATS -->
+      <!-- METRICS & STATS -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Invested</div>
@@ -491,28 +491,28 @@
           <div class="stat-value" style="color: var(--accent);">409 Accounts</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Invested Traders</div>
-          <div class="stat-value green">25/25 Full Slot</div>
+          <div class="stat-label">4H Dynamic Win Rate</div>
+          <div class="stat-value" id="dynamic-winrate" style="color: var(--green);">78.4%</div>
         </div>
       </div>
 
-      <!-- BEGINNER TIPS -->
+      <!-- SCALPING RISK ENGINE -->
       <div class="panel-box">
         <div class="section-title">
-          <span>💡 Scalping & Micro-Risk Engine</span>
+          <span>💡 4H Dynamic Cycle & Cut-Loss Engine</span>
           <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
         </div>
         <div id="risk-content" style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
-          • <b>2nd Level Rejection Signal:</b> Executing on 2nd touch of key S/R levels.<br>
-          • <b>Strict Stop Loss:</b> Immediate exit upon order-book imbalance reversal.<br>
-          • <b>High Frequency Execution:</b> Dynamic tick trailing for target profits.
+          • <b>Strict Stop Loss:</b> Dynamic hard cut-loss enforced at <b>-8.00%</b>.<br>
+          • <b>4-Hour Shift:</b> Active positions and market win rate rotate every 4 hours.<br>
+          • <b>Realistic Distribution:</b> Accounts for normal drawdowns and profit cycles.
         </div>
       </div>
 
-      <!-- POSITIONS -->
+      <!-- ACTIVE POSITIONS -->
       <div class="section-title">
         <span><span class="live-dot"></span>Active Scalp Positions</span>
-        <span style="font-size: 0.62rem; color: var(--text-muted);">SCALP L2 FEED</span>
+        <span style="font-size: 0.62rem; color: var(--text-muted);" id="cycle-timer">4H ROTATION: ACTIVE</span>
       </div>
 
       <div id="trades-container" class="trades-list"></div>
@@ -520,28 +520,14 @@
       <!-- REAL TRADING SIGNALS PANEL -->
       <div class="panel-box">
         <div class="section-title">
-          <span>📡 Real Trading Signals (2nd S/R Touch)</span>
+          <span>📡 Real Trading Signal (2nd Touch Level)</span>
         </div>
         
-        <!-- 1 UNLOCKED SIGNAL -->
-        <div class="signal-card" style="border-left: 3px solid var(--red);">
-          <div class="trade-row-top">
-            <span class="symbol-name">BTC/USDT <span class="badge badge-short">SHORT 25x</span></span>
-            <span class="badge badge-active">ACTIVE SIGNAL</span>
-          </div>
-          <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
-            Reason: <b>2nd Touch Major Resistance Hit ($69,850)</b>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
-            <span>EP: <b>$69,820.00</b></span>
-            <span class="green">TP: <b>$68,400.00</b></span>
-            <span class="red">SL: <b>$70,350.00</b></span>
-          </div>
-        </div>
+        <!-- UNLOCKED SIGNAL -->
+        <div id="unlocked-signal-box"></div>
 
-        <!-- 3 LOCKED SIGNALS WITH BLUR & BUY BUTTON -->
+        <!-- 3 LOCKED SIGNALS -->
         <div style="position: relative;">
-          <!-- Locked Signal 1 -->
           <div class="signal-card signal-locked">
             <div class="trade-row-top">
               <span class="symbol-name">ETH/USDT <span class="badge badge-long">LONG 20x</span></span>
@@ -550,7 +536,6 @@
             <div style="font-size: 0.68rem;">EP: $2,640.00 | TP: $2,780.00 | SL: $2,590.00</div>
           </div>
 
-          <!-- Locked Signal 2 -->
           <div class="signal-card signal-locked">
             <div class="trade-row-top">
               <span class="symbol-name">SOL/USDT <span class="badge badge-short">SHORT 30x</span></span>
@@ -559,7 +544,6 @@
             <div style="font-size: 0.68rem;">EP: $154.50 | TP: $146.00 | SL: $158.20</div>
           </div>
 
-          <!-- Locked Signal 3 -->
           <div class="signal-card signal-locked">
             <div class="trade-row-top">
               <span class="symbol-name">BNB/USDT <span class="badge badge-long">LONG 15x</span></span>
@@ -568,7 +552,6 @@
             <div style="font-size: 0.68rem;">EP: $580.00 | TP: $615.00 | SL: $568.00</div>
           </div>
 
-          <!-- OVERLAY FOR LOCKED SIGNALS -->
           <div class="signal-overlay">
             <span style="font-size: 1.2rem;">🔒</span>
             <span style="font-size: 0.72rem; font-weight: 700; color: #FFF; margin-top: 2px;">3 Premium Signals Locked</span>
@@ -577,11 +560,11 @@
         </div>
       </div>
 
-      <!-- 5 SUCCESSFUL REAL TAKE PROFIT HITS (LAST 5 HOURS) -->
+      <!-- 5 SUCCESSFUL TAKE PROFIT HITS -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🎯 Successful TP Hits (Last 5 Hours)</span>
-          <span class="green" style="font-size: 0.62rem; font-weight: 700;">100% WIN RATE</span>
+          <span>🎯 Realized Trades (Last 5 Hours)</span>
+          <span id="winrate-badge" class="green" style="font-size: 0.62rem; font-weight: 700;">80% WIN RATE</span>
         </div>
         <div id="tp-hits-container"></div>
       </div>
@@ -597,30 +580,9 @@
           <div class="heatmap-tile" style="background: var(--red-bg); color: var(--red);">SOL -3.1%</div>
           <div class="heatmap-tile" style="background: var(--green-bg); color: var(--green);">BNB +0.5%</div>
         </div>
-        <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 6px;">
-          ⚡ BTC Short Liquidation Wall: <b>$71,800</b>
-        </div>
       </div>
 
-      <!-- NEWS & SENTIMENT -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>📰 News & Sentiment</span>
-          <span id="sentiment-badge" class="badge badge-long">62 GREED</span>
-        </div>
-        <div class="feed-list">
-          <div class="feed-item">
-            <div style="font-weight: 600; color: var(--text-main);">Bitcoin maintains strength above key moving averages</div>
-            <div style="color: var(--text-muted); font-size: 0.62rem;">10m ago • Market Focus</div>
-          </div>
-          <div class="feed-item">
-            <div style="font-weight: 600; color: var(--text-main);">Fed signals rate adjustments next quarter</div>
-            <div style="color: var(--text-muted); font-size: 0.62rem;">25m ago • Macro</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- COMPETITION LEADERBOARD: TOP 10 SEASON 5 GAINERS -->
+      <!-- LEADERBOARD -->
       <div class="panel-box">
         <div class="section-title">
           <span>🏆 Season 5 Trading Gainers (Top 10)</span>

@@ -22,7 +22,7 @@ const TICKER_POOL = [
 const TIMEFRAMES = ["1m", "3m", "5m"];
 let currentTrades = [];
 
-// Leaderboard: Top 10
+// Leaderboard Top 10
 const LEADERBOARD_DATA = [
   { rank: 1, name: "CryptoWhale_X", pnl: 27955.00 },
   { rank: 2, name: "AlphaTrader99", pnl: 25840.45 },
@@ -36,21 +36,26 @@ const LEADERBOARD_DATA = [
   { rank: 10, name: "MatrixBull", pnl: 15651.00 }
 ];
 
-// 5 Successful Take Profit Hits (Last 5 Hours)
-const TP_HITS_DATA = [
-  { pair: "BTC/USDT", type: "SHORT (2nd Res Touch)", entry: "$69,450.00", tp: "$68,100.00", profit: "+182.5%", time: "42m ago" },
-  { pair: "ETH/USDT", type: "LONG (2nd Supp Touch)", entry: "$2,610.00", tp: "$2,715.00", profit: "+148.2%", time: "1h 15m ago" },
-  { pair: "SOL/USDT", type: "SHORT (2nd Res Touch)", entry: "$152.80", tp: "$145.20", profit: "+210.4%", time: "2h 30m ago" },
-  { pair: "BNB/USDT", type: "LONG (2nd Supp Touch)", entry: "$574.00", tp: "$598.00", profit: "+125.0%", time: "3h 40m ago" },
-  { pair: "XRP/USDT", type: "SHORT (2nd Res Touch)", entry: "$0.5820", tp: "$0.5410", profit: "+195.8%", time: "4h 50m ago" }
-];
-
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function formatCurrency(amount) {
   return "$" + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// 4-HOUR ROTATION SEED ENGINE
+function get4HourCycleSeed() {
+  const FOUR_HOURS = 4 * 60 * 60 * 1000;
+  const currentTimestamp = Date.now();
+  const lastCycle = localStorage.getItem('last_4h_cycle_time');
+
+  if (!lastCycle || (currentTimestamp - parseInt(lastCycle)) > FOUR_HOURS) {
+    localStorage.setItem('last_4h_cycle_time', currentTimestamp.toString());
+    localStorage.setItem('cycle_seed', Math.random().toString());
+  }
+
+  return parseFloat(localStorage.getItem('cycle_seed') || Math.random());
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -62,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderTradingViewCharts();
   renderLeaderboard();
-  renderTpHits();
+  update4HourCycleData();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
   
@@ -74,7 +79,72 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Load TradingView Charts
+// Update 4-Hour Shift Data (Win Rate, Signals & Realized Trades)
+function update4HourCycleData() {
+  const seed = get4HourCycleSeed();
+  
+  // Calculate dynamic winrate between 62.0% and 84.0%
+  const dynamicWinRate = (62.0 + (seed * 22)).toFixed(1);
+  document.getElementById('dynamic-winrate').innerText = `${dynamicWinRate}%`;
+  document.getElementById('winrate-badge').innerText = `${dynamicWinRate}% WIN RATE`;
+
+  renderDynamicSignal(seed);
+  renderRealizedTrades(seed);
+}
+
+// Render Unlocked Signal based on 2nd Touch S/R
+function renderDynamicSignal(seed) {
+  const isResistance = seed > 0.5;
+  const symbol = isResistance ? "BTC/USDT" : "ETH/USDT";
+  const direction = isResistance ? "SHORT" : "LONG";
+  const badgeClass = isResistance ? "badge-short" : "badge-long";
+  const reason = isResistance 
+    ? "2nd Touch Major Resistance Hit ($69,850)" 
+    : "2nd Touch Major Support Hit ($2,580)";
+  
+  const ep = isResistance ? "$69,820.00" : "$2,585.00";
+  const tp = isResistance ? "$68,400.00" : "$2,720.00";
+  const sl = isResistance ? "$70,350.00" : "$2,520.00";
+
+  document.getElementById('unlocked-signal-box').innerHTML = `
+    <div class="signal-card" style="border-left: 3px solid ${isResistance ? 'var(--red)' : 'var(--green)'};">
+      <div class="trade-row-top">
+        <span class="symbol-name">${symbol} <span class="badge ${badgeClass}">${direction} 25x</span></span>
+        <span class="badge badge-active">ACTIVE SIGNAL</span>
+      </div>
+      <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
+        Reason: <b>${reason}</b>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
+        <span>EP: <b>${ep}</b></span>
+        <span class="green">TP: <b>${tp}</b></span>
+        <span class="red">SL: <b>${sl}</b></span>
+      </div>
+    </div>
+  `;
+}
+
+// Render Realized Trades (Includes Losses to keep Win Rate realistic)
+function renderRealizedTrades(seed) {
+  const container = document.getElementById('tp-hits-container');
+  if (!container) return;
+
+  const realizedList = [
+    { pair: "BTC/USDT", type: "SHORT", entry: "$69,450.00", exit: "$68,100.00", result: "+182.5%", isWin: true, time: "42m ago" },
+    { pair: "ETH/USDT", type: "LONG", entry: "$2,610.00", exit: "$2,715.00", result: "+148.2%", isWin: true, time: "1h 15m ago" },
+    { pair: "SOL/USDT", type: "LONG", entry: "$152.80", exit: "$148.20", result: "-8.00%", isWin: false, time: "2h 10m ago" }, // CUT LOSS
+    { pair: "BNB/USDT", type: "LONG", entry: "$574.00", exit: "$598.00", result: "+125.0%", isWin: true, time: "3h 40m ago" },
+    { pair: "XRP/USDT", type: "SHORT", entry: "$0.5820", exit: "$0.5410", result: "+195.8%", isWin: true, time: "4h 50m ago" }
+  ];
+
+  container.innerHTML = realizedList.map(hit => `
+    <div class="tp-hit-item">
+      <span><b>${hit.pair}</b> <span style="font-size:0.58rem; color:var(--text-muted);">${hit.time}</span></span>
+      <span class="${hit.isWin ? 'green' : 'red'}"><b>${hit.exit}</b> (${hit.result})</span>
+    </div>
+  `).join('');
+}
+
 function renderTradingViewCharts() {
   const parent1 = document.getElementById('chart-1-parent');
   const parent2 = document.getElementById('chart-2-parent');
@@ -139,18 +209,6 @@ function renderLeaderboard() {
       <td>${t.name}</td>
       <td class="green">+${formatCurrency(t.pnl)}</td>
     </tr>
-  `).join('');
-}
-
-function renderTpHits() {
-  const container = document.getElementById('tp-hits-container');
-  if (!container) return;
-
-  container.innerHTML = TP_HITS_DATA.map(hit => `
-    <div class="tp-hit-item">
-      <span><b>${hit.pair}</b> <span style="font-size:0.58rem; color:var(--text-muted);">${hit.time}</span></span>
-      <span class="green"><b>${hit.tp}</b> (${hit.profit})</span>
-    </div>
   `).join('');
 }
 
@@ -223,10 +281,8 @@ async function loadUserProfile(user) {
 
   const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
   
-  // Set Account Name
   document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'S TRADING ACCOUNT`;
   
-  // Format and set UID based on registered user.id
   const uidString = user.id ? user.id.replace(/-/g, '').substring(0, 8).toUpperCase() : "88219042";
   document.getElementById('account-uid').innerText = `UID# ${uidString}`;
   
@@ -237,21 +293,23 @@ async function loadUserProfile(user) {
   initRealTrades();
 }
 
-// REALISTIC SCALPING P&L ENGINE
+// REALISTIC SCALPING P&L ENGINE (Allows drawdowns & triggers Cut Loss at -8%)
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
-  currentPercent = (Math.random() * (4.2 - (-2.1)) + (-2.1));
-  let scalpTrendBias = (Math.random() - 0.48) * 0.12; 
+  currentPercent = (Math.random() * 4.0 - 2.0); // Realistic start (-2% to +2%)
+  let scalpTrendBias = (Math.random() - 0.5) * 0.15; 
 
   function updateTicker() {
-    const microStep = (Math.random() * 0.18 - 0.08) + scalpTrendBias;
+    const microStep = (Math.random() * 0.24 - 0.12) + scalpTrendBias;
     currentPercent += microStep;
 
-    if (currentPercent > 12.5) {
-      scalpTrendBias = -0.08;
-    } else if (currentPercent < -8.5) {
-      scalpTrendBias = 0.08;
+    // HARD STOP LOSS ENFORCED AT -8%
+    if (currentPercent <= -8.0) {
+      currentPercent = -8.00; // Trigger Cut Loss
+      scalpTrendBias = 0.12; // Bounce bias after stop loss execution
+    } else if (currentPercent > 14.0) {
+      scalpTrendBias = -0.10;
     }
 
     const formattedPercent = currentPercent.toFixed(2);
@@ -274,9 +332,11 @@ function startSmoothPnL(investedAmount) {
   pnlInterval = setInterval(updateTicker, 1500);
 }
 
-// Generate Realistic Scalping Positions
+// Generate Dynamic 4-Hour Position Sets
 function generateTradeSetup(tickerObj) {
-  const isLong = Math.random() > 0.45;
+  const seed = get4HourCycleSeed();
+  const isLong = (Math.random() + seed) % 1 > 0.45;
+
   return {
     symbol: tickerObj.symbol,
     displaySymbol: tickerObj.displaySymbol,
@@ -286,13 +346,14 @@ function generateTradeSetup(tickerObj) {
     status: "ACTIVE",
     entryPrice: 0,
     currentPrice: 0,
-    pnlPercent: (Math.random() * 3.5 - 1.2),
-    trendMomentum: (Math.random() - 0.48) * 0.0003
+    pnlPercent: (Math.random() * 4.0 - 2.0)
   };
 }
 
 function initRealTrades() {
-  const shuffled = [...TICKER_POOL].sort(() => 0.5 - Math.random());
+  const seed = get4HourCycleSeed();
+  // Rotate chosen tickers based on 4-hour cycle seed
+  const shuffled = [...TICKER_POOL].sort((a, b) => (a.symbol.charCodeAt(0) * seed) - (b.symbol.charCodeAt(0) * seed));
   currentTrades = shuffled.slice(0, 3).map(t => generateTradeSetup(t));
   connectBinanceWebSocket();
 }
@@ -317,7 +378,16 @@ function connectBinanceWebSocket() {
         const priceDiffRatio = (trade.currentPrice - trade.entryPrice) / trade.entryPrice;
         const directionMultiplier = trade.direction === "LONG" ? 1 : -1;
         
-        trade.pnlPercent = priceDiffRatio * trade.leverage * 100 * directionMultiplier;
+        let calculatedPnL = priceDiffRatio * trade.leverage * 100 * directionMultiplier;
+
+        // CUT LOSS TRIGGER AT -8.00%
+        if (calculatedPnL <= -8.0) {
+          trade.pnlPercent = -8.00;
+          trade.status = "STOPPED (-8% SL)";
+        } else {
+          trade.pnlPercent = calculatedPnL;
+          trade.status = "ACTIVE";
+        }
       }
 
       renderTrades();
@@ -333,7 +403,10 @@ function renderTrades() {
     const isPos = trade.pnlPercent >= 0;
     const badgeDirection = trade.direction === "LONG" ? "badge-long" : "badge-short";
     
-    const statusBadge = `<span class="badge badge-active">ACTIVE</span>`;
+    const isStopped = trade.status.includes("STOPPED");
+    const statusBadge = isStopped 
+      ? `<span class="badge badge-stopped">CUT LOSS (-8%)</span>`
+      : `<span class="badge badge-active">ACTIVE</span>`;
 
     let formattedPrice = "Syncing...";
     if (trade.currentPrice > 0) {
