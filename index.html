@@ -69,7 +69,6 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    /* Exactly 100px by 100px Logo */
     .site-logo {
       width: 100px !important;
       height: 100px !important;
@@ -277,7 +276,7 @@
       font-weight: 700;
     }
 
-    /* Leaderboard Table */
+    /* Leaderboard Table (Fixed to Top 8, Non-scrollable) */
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
@@ -292,7 +291,7 @@
     }
 
     .leaderboard-table td {
-      padding: 3px 0;
+      padding: 4px 0;
       border-bottom: 1px dashed var(--border-color);
     }
 
@@ -397,18 +396,17 @@
         min-width: 100%;
         height: auto;
         overflow-y: visible;
+        order: 2; /* Sidebar goes below chart on mobile */
       }
 
-      .control-row {
-        display: none !important;
-      }
-
+      /* Chart container placed above active positions on mobile */
       .chart-box {
         display: block !important;
         width: 100%;
-        height: 500px !important;
-        min-height: 500px;
+        height: 420px !important;
+        min-height: 420px;
         grid-template-columns: 1fr !important;
+        order: 1;
       }
 
       .chart-wrapper {
@@ -417,6 +415,10 @@
       }
 
       #chart-2-parent {
+        display: none !important;
+      }
+
+      .control-row {
         display: none !important;
       }
     }
@@ -474,24 +476,11 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">Active Subscribed</div>
-          <div class="stat-value" style="color: var(--accent);">409 Accounts</div>
+          <div class="stat-value" style="color: var(--accent);">282 Accounts</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">4H Dynamic Win Rate</div>
-          <div class="stat-value" id="dynamic-winrate" style="color: var(--green);">78.4%</div>
-        </div>
-      </div>
-
-      <!-- SCALPING RISK ENGINE -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>💡 Dynamic Engine & Cut-Loss</span>
-          <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
-        </div>
-        <div id="risk-content" style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
-          • <b>Micro-Gains:</b> Realized trade profits strictly capped under <b>+$150.00</b>.<br>
-          • <b>Strict Stop Loss:</b> Cut-loss strictly triggered at <b>-8.00%</b>.<br>
-          • <b>Peak High Watermark:</b> 2% chance peak gain visibility up to <b>$1,479.00 max</b>.
+          <div class="stat-label">Season Win Rate</div>
+          <div class="stat-value" id="dynamic-winrate" style="color: var(--green);">82.0%</div>
         </div>
       </div>
 
@@ -549,8 +538,8 @@
       <!-- REALIZED TRADES WITH CAPPED SMALL GAINS -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🎯 Micro Realized Trades (Last 5 Hours)</span>
-          <span id="winrate-badge" class="green" style="font-size: 0.62rem; font-weight: 700;">80% WIN RATE</span>
+          <span>🎯 Realized Trades (Last 5 Hours)</span>
+          <span id="winrate-badge" class="green" style="font-size: 0.62rem; font-weight: 700;">82% WIN RATE</span>
         </div>
         <div id="tp-hits-container"></div>
       </div>
@@ -568,18 +557,31 @@
         </div>
       </div>
 
-      <!-- LEADERBOARD -->
+      <!-- LEADERBOARD (Top 8, Fixed Non-scrollable) -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🏆 Season 5 Micro Gainers (Top 10)</span>
+          <span>🏆 Season 5 Gainers (Top 8)</span>
         </div>
-        <div style="max-height: 140px; overflow-y: auto;">
+        <div>
           <table class="leaderboard-table">
             <thead>
               <tr><th>#</th><th>Trader</th><th>Gain</th></tr>
             </thead>
             <tbody id="leaderboard-body"></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- TIPS ENGINE (Moved above Log Out button) -->
+      <div class="panel-box" id="tips-panel">
+        <div class="section-title">
+          <span>💡 Scalping Engine Tips</span>
+          <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
+        </div>
+        <div id="risk-content" style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
+          • <b>Small Gains:</b> Realized trade profits strictly managed under <b>+$150.00</b>.<br>
+          • <b>Strict Stop Loss:</b> Cut-loss triggered at <b>-8.00%</b>.<br>
+          • <b>Peak High Watermark:</b> Rare peak gain visibility up to <b>$1,479.00 max</b>.
         </div>
       </div>
 
