@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trader Portfolio</title>
+  <title>Trade & Travel - Trader Portfolio</title>
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -13,7 +13,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
       padding: 0;
-      overflow: hidden; /* Important for full-screen feel */
+      overflow: hidden; /* App view feel */
     }
     
     /* Overall Layout: Sidebar and Chart */
@@ -25,7 +25,7 @@
     
     /* Left Sidebar: User Details */
     .sidebar {
-      width: 300px;
+      width: 320px;
       background: #1c1c1e;
       padding: 20px;
       display: flex;
@@ -35,27 +35,29 @@
       overflow-y: auto; /* Scroll sidebar if needed */
     }
     
-    /* Logo Container & Image Style */
+    /* Logo Container & Larger Image Style */
     .logo-container {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 15px;
+      margin-bottom: 25px;
     }
     
     .site-logo {
-      width: 50px;
-      height: 50px;
-      border-radius: 8px; /* Slightly rounded edges for a clean look */
+      width: 75px;
+      height: 75px;
+      border-radius: 12px; 
       object-fit: cover;
-      border: 1px solid #333;
+      border: 1px solid #3a3a3e;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     .brand-name {
-      font-size: 1.2rem;
-      font-weight: bold;
+      font-size: 1.4rem;
+      font-weight: 700;
       color: #fff;
       margin: 0;
+      line-height: 1.2;
     }
     
     /* Right Area: Advanced Chart */
@@ -69,16 +71,27 @@
     .card {
       background: #2a2a2e;
       padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
+      border-radius: 8px;
+      margin-bottom: 18px;
       border: 1px solid #3a3a3e;
     }
-    h2, h3, h4 { margin: 0 0 10px 0; color: #fff; }
+
+    h2, h3, h4 { 
+      margin: 0 0 8px 0; 
+      color: #fff; 
+    }
+
     h2 { font-size: 1.5rem; }
-    h4 { font-size: 0.85rem; color: #aaaaaa; text-transform: uppercase; letter-spacing: 1px; }
+    
+    h4 { 
+      font-size: 0.8rem; 
+      color: #aaaaaa; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+    }
+
     .green { color: #4caf50; }
 
-    /* Adjust the main welcome message */
     .welcome-header {
       padding: 15px;
     }
@@ -90,9 +103,9 @@
     <!-- Left Sidebar -->
     <div class="sidebar">
       
-      <!-- LOGO AREA AT THE VERY TOP LEFT -->
+      <!-- LOGO AREA -->
       <div class="logo-container">
-        <img src="images/tradeatravel.jpg" alt="Trade & Travel Logo" class="site-logo">
+        <img src="image/tradeatravel.jpg" alt="Trade & Travel Logo" class="site-logo">
         <h1 class="brand-name">Trade & Travel</h1>
       </div>
 
@@ -127,34 +140,34 @@
           <script type="text/javascript">
           new TradingView.widget(
           {
-          "autosize": true,
-          "symbol": "CRYPTOCAP:TOTAL", // Default symbol when page loads
-          "interval": "D",
-          "timezone": "Etc/UTC",
-          "theme": "dark",
-          "style": "1",
-          "locale": "en",
-          "toolbar_bg": "#f1f3f6",
-          "enable_publishing": false,
-          "allow_symbol_change": true,
-          "container_id": "tradingview_12345",
-          "withdateranges": true,
-          "hide_side_toolbar": false,
-          "save_image": true,
-          "details": true,
-          "hotlist": true,
-          "calendar": true,
-          "news": [
-            "headlines"
-          ],
-          "show_popup_button": true,
-          "popup_width": "1000",
-          "popup_height": "650",
-          "studies": [
-            "RSI@tv-basicstudies",
-            "MASimple@tv-basicstudies"
-          ]
-        }
+            "autosize": true,
+            "symbol": "CRYPTOCAP:TOTAL", 
+            "interval": "D",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "allow_symbol_change": true, // Enables searching any symbol
+            "container_id": "tradingview_12345",
+            "withdateranges": true,
+            "hide_side_toolbar": false, // Enables drawing tools toolbar
+            "save_image": true,
+            "details": true,
+            "hotlist": true,
+            "calendar": true,
+            "news": [
+              "headlines"
+            ],
+            "show_popup_button": true,
+            "popup_width": "1000",
+            "popup_height": "650",
+            "studies": [
+              "RSI@tv-basicstudies",
+              "MASimple@tv-basicstudies"
+            ]
+          }
           );
           </script>
         </div>
