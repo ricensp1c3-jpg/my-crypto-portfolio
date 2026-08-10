@@ -32,7 +32,30 @@
       flex-direction: column;
       border-right: 1px solid #333;
       box-sizing: border-box;
-      overflow-y: auto; /* Sroll sidebar if needed */
+      overflow-y: auto; /* Scroll sidebar if needed */
+    }
+    
+    /* Logo Container & Image Style */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .site-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px; /* Slightly rounded edges for a clean look */
+      object-fit: cover;
+      border: 1px solid #333;
+    }
+
+    .brand-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      margin: 0;
     }
     
     /* Right Area: Advanced Chart */
@@ -54,14 +77,10 @@
     h2 { font-size: 1.5rem; }
     h4 { font-size: 0.85rem; color: #aaaaaa; text-transform: uppercase; letter-spacing: 1px; }
     .green { color: #4caf50; }
-    .username-title {
-        color: #aaaaaa;
-        margin-bottom: 20px;
-    }
 
     /* Adjust the main welcome message */
     .welcome-header {
-        padding: 0;
+      padding: 15px;
     }
   </style>
 </head>
@@ -70,6 +89,13 @@
   <div class="app-container">
     <!-- Left Sidebar -->
     <div class="sidebar">
+      
+      <!-- LOGO AREA AT THE VERY TOP LEFT -->
+      <div class="logo-container">
+        <img src="image/tradeatravel.jpg" alt="Trade & Travel Logo" class="site-logo">
+        <h1 class="brand-name">Trade & Travel</h1>
+      </div>
+
       <div class="welcome-header card">
         <h4>Logged In As:</h4>
         <h2 id="username">Loading...</h2>
@@ -110,15 +136,13 @@
           "locale": "en",
           "toolbar_bg": "#f1f3f6",
           "enable_publishing": false,
-          "allow_symbol_change": true, // <--- THIS MAKES IT SEARCHABLE
-          "container_id": "tradingview_12345",
-          // The following settings provide the full Superchart look:
-          "withdateranges": true,
-          "hide_side_toolbar": false, // SHOWS DRAWING TOOLS
           "allow_symbol_change": true,
+          "container_id": "tradingview_12345",
+          "withdateranges": true,
+          "hide_side_toolbar": false,
           "save_image": true,
-          "details": true, // SHOWS VOL/DATA/TICKER DETAILS
-          "hotlist": true, // SHOWS WATCHLISTS/TOP GAINERS
+          "details": true,
+          "hotlist": true,
           "calendar": true,
           "news": [
             "headlines"
