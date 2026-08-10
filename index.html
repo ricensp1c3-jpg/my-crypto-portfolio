@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>TradEaTravel Pro</title>
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,26 +26,25 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
-      height: 100vh;
+      min-height: 100vh;
       width: 100vw;
-      overflow: hidden;
     }
 
-    /* Overall Layout */
+    /* Layout */
     .app-container {
       display: flex;
       height: 100vh;
       width: 100vw;
       flex-direction: row;
+      overflow: hidden;
     }
 
-    /* Sidebar Navigation Area */
+    /* Sidebar Area */
     .sidebar {
       width: 320px;
       min-width: 320px;
@@ -59,45 +58,47 @@
       z-index: 10;
     }
 
-    /* Compact Header / Brand */
+    /* Header & Title */
     .brand-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--border-color);
     }
 
     .site-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
       object-fit: cover;
       border: 1px solid var(--border-color);
     }
 
     .brand-title {
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       color: var(--text-main);
+      line-height: 1.2;
+      flex-grow: 1;
     }
 
-    .user-pill {
-      margin-left: auto;
-      font-size: 0.7rem;
-      background: #2b313a;
-      padding: 3px 8px;
-      border-radius: 12px;
-      color: var(--accent);
-      font-weight: 600;
-      max-width: 90px;
+    /* Upper Right Logout Button (Mobile Only) */
+    .btn-logout-mobile {
+      display: none;
+      background: rgba(246, 70, 93, 0.15);
+      border: 1px solid var(--red);
+      color: var(--red);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    /* Portfolio Stats Grid */
+    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -158,11 +159,6 @@
       border: 1px solid var(--border-color);
       border-radius: 6px;
       padding: 8px 10px;
-      transition: background 0.15s ease;
-    }
-
-    .trade-card:hover {
-      background: var(--bg-card-hover);
     }
 
     .trade-row-top {
@@ -210,44 +206,15 @@
     .green { color: var(--green); }
     .red { color: var(--red); }
 
-    /* Chart Container */
+    /* Desktop Chart Panel */
     .chart-box {
       flex-grow: 1;
       height: 100%;
       background: var(--bg-main);
     }
 
-    /* Mobile Bottom Navigation Bar */
-    .mobile-nav {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 50px;
-      background: var(--bg-card);
-      border-top: 1px solid var(--border-color);
-      z-index: 100;
-    }
-
-    .mobile-tab {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .mobile-tab.active {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    /* Action Buttons */
-    .btn-logout {
+    /* Desktop Bottom Logout Button */
+    .btn-logout-desktop {
       margin-top: auto;
       background: rgba(246, 70, 93, 0.1);
       border: 1px solid var(--red);
@@ -258,44 +225,54 @@
       font-size: 0.75rem;
       cursor: pointer;
       width: 100%;
-      transition: background 0.2s ease;
     }
 
-    .btn-logout:hover {
-      background: var(--red);
-      color: white;
+    /* Embedded Mobile Chart Section (Below active positions) */
+    .mobile-chart-section {
+      display: none;
+      width: 100%;
+      height: 420px;
+      margin-top: 10px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+      touch-action: auto !important; /* Enable phone touch gestures */
     }
 
-    /* Responsive Design for Mobile */
+    /* Responsive Mobile Overrides */
     @media (max-width: 768px) {
+      body {
+        overflow-y: auto;
+      }
+
       .app-container {
         flex-direction: column;
-        height: calc(100vh - 50px);
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
       }
 
       .sidebar {
         width: 100%;
         min-width: 100%;
-        height: 100%;
+        height: auto;
         border-right: none;
+        overflow: visible;
       }
 
       .chart-box {
-        display: none; /* Controlled by mobile tabs */
-        width: 100%;
-        height: 100%;
+        display: none; /* Hide side panel on phone */
       }
 
-      .mobile-nav {
-        display: flex;
+      .mobile-chart-section {
+        display: block; /* Show chart below active trades */
       }
 
-      .chart-active .chart-box {
-        display: block;
+      .btn-logout-desktop {
+        display: none; /* Hide bottom sidebar button on phone */
       }
 
-      .chart-active .sidebar {
-        display: none;
+      .btn-logout-mobile {
+        display: block; /* Show upper-right logout button on phone */
       }
     }
 
@@ -362,7 +339,7 @@
   <div id="auth-modal" class="auth-overlay">
     <div class="auth-card">
       <h3 id="auth-title" style="color: var(--text-main); margin-bottom: 4px;">Sign In</h3>
-      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px;" id="auth-sub">Access your trading terminal</p>
+      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px;" id="auth-sub">Access your trading account</p>
       
       <input type="email" id="auth-email" placeholder="Email">
       <input type="password" id="auth-password" placeholder="Password">
@@ -373,20 +350,22 @@
     </div>
   </div>
 
-  <!-- MAIN APP CONTAINER -->
-  <div class="app-container" id="app-viewport">
+  <!-- MAIN TERMINAL APP -->
+  <div class="app-container">
     
-    <!-- LEFT SIDEBAR / PORTFOLIO TERMINAL -->
+    <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
-      <!-- BRAND HEADER -->
+      <!-- HEADER WITH LOGOUT BUTTON AT UPPER RIGHT FOR MOBILE -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
-        <span class="brand-title">TERMINAL</span>
-        <span class="user-pill" id="username">---</span>
+        <span class="brand-title" id="account-title">Trading Account</span>
+        
+        <!-- MOBILE LOGOUT BUTTON (UPPER RIGHT) -->
+        <button class="btn-logout-mobile" onclick="logout()">LOG OUT</button>
       </div>
 
-      <!-- PORTFOLIO METRICS -->
+      <!-- PORTFOLIO STATS GRID -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Invested</div>
@@ -398,7 +377,7 @@
         </div>
       </div>
 
-      <!-- LIVE POSITIONS -->
+      <!-- ACTIVE TRADES LIST -->
       <div class="section-title">
         <span><span class="live-dot"></span>Active Positions</span>
         <span style="font-size: 0.65rem; color: var(--text-muted);">BINANCE LIVE</span>
@@ -408,48 +387,27 @@
         <!-- Live WebSocket Trades Render Here -->
       </div>
 
-      <!-- LOGOUT BUTTON -->
-      <button class="btn-logout" onclick="logout()">Log Out Terminal</button>
+      <!-- EMBEDDED MOBILE CHART (POSITIONED DIRECTLY BELOW ACTIVE POSITIONS) -->
+      <div class="mobile-chart-section">
+        <div class="section-title" style="margin-bottom: 8px;">
+          <span>Live Interactive Chart</span>
+        </div>
+        <div class="tradingview-widget-container" style="height:380px;width:100%">
+          <div id="tradingview_mobile" style="height:100%;width:100%"></div>
+        </div>
+      </div>
+
+      <!-- DESKTOP LOGOUT BUTTON -->
+      <button class="btn-logout-desktop" onclick="logout()">Log Out</button>
     </div>
 
-    <!-- RIGHT CHART BOX -->
+    <!-- DESKTOP RIGHT CHART CONTAINER -->
     <div class="chart-box">
       <div class="tradingview-widget-container" style="height:100%;width:100%">
-        <div id="tradingview_12345" style="height:100%;width:100%"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-        <script type="text/javascript">
-          new TradingView.widget({
-            "autosize": true,
-            "symbol": "BINANCE:BTCUSDT", 
-            "interval": "15",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#181a20",
-            "enable_publishing": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_12345",
-            "withdateranges": true,
-            "hide_side_toolbar": false,
-            "save_image": false,
-            "details": false,
-            "hotlist": false,
-            "calendar": false
-          });
-        </script>
+        <div id="tradingview_desktop" style="height:100%;width:100%"></div>
       </div>
     </div>
-  </div>
 
-  <!-- MOBILE NAVIGATION TABS -->
-  <div class="mobile-nav">
-    <div class="mobile-tab active" id="tab-positions" onclick="switchMobileTab('positions')">
-      <span>POSITIONS</span>
-    </div>
-    <div class="mobile-tab" id="tab-chart" onclick="switchMobileTab('chart')">
-      <span>CHARTS</span>
-    </div>
   </div>
 
   <script src="app.js"></script>
