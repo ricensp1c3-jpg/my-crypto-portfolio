@@ -95,10 +95,93 @@
     .welcome-header {
       padding: 15px;
     }
+
+    /* --- AUTH & BUTTON STYLES --- */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      transition: background 0.2s ease;
+    }
+    .btn:hover { background: #0056b3; }
+    .btn-danger { background: #e53935; margin-top: auto; }
+    .btn-danger:hover { background: #b71c1c; }
+
+    /* Login/Register Modal Overlay */
+    .auth-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .auth-card {
+      background: #1c1c1e;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #3a3a3e;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .auth-card input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #3a3a3e;
+      background: #2a2a2e;
+      color: white;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .auth-card input:focus {
+      border-color: #007aff;
+    }
+
+    .auth-toggle {
+      color: #007aff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 15px;
+      display: block;
+    }
+    .auth-toggle:hover { text-decoration: underline; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
+  <!-- AUTHENTICATION OVERLAY (MODAL) -->
+  <div id="auth-modal" class="auth-overlay">
+    <div class="auth-card">
+      <h2 id="auth-title">Welcome Back</h2>
+      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;" id="auth-sub">Log in to access your trading portfolio</p>
+      
+      <input type="email" id="auth-email" placeholder="Email Address">
+      <input type="password" id="auth-password" placeholder="Password">
+      <input type="text" id="auth-username" placeholder="Username (for registration)" class="hidden">
+
+      <button id="auth-btn" class="btn" onclick="handleAuth()">Log In</button>
+      
+      <span class="auth-toggle" id="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Register</span>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
   <div class="app-container">
     <!-- Left Sidebar -->
     <div class="sidebar">
@@ -129,6 +212,9 @@
         <h3 id="setup-name">---</h3>
         <p id="setup-desc" style="font-size: 0.9em; color: #aaa; margin: 0;">---</p>
       </div>
+
+      <!-- LOGOUT BUTTON -->
+      <button class="btn btn-danger" onclick="logout()">Log Out</button>
     </div>
 
     <!-- Right Area: THE SUPERCHART! -->
