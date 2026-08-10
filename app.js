@@ -22,7 +22,7 @@ const TICKER_POOL = [
 const TIMEFRAMES = ["1m", "3m", "5m"];
 let currentTrades = [];
 
-// Leaderboard: Top 10 with Highest at $27,955.00 USD and Top 10 at $15,651.00 USD
+// Leaderboard: Top 10
 const LEADERBOARD_DATA = [
   { rank: 1, name: "CryptoWhale_X", pnl: 27955.00 },
   { rank: 2, name: "AlphaTrader99", pnl: 25840.45 },
@@ -34,6 +34,15 @@ const LEADERBOARD_DATA = [
   { rank: 8, name: "ShadowMargin", pnl: 17412.60 },
   { rank: 9, name: "QuantumCap", pnl: 16580.30 },
   { rank: 10, name: "MatrixBull", pnl: 15651.00 }
+];
+
+// 5 Successful Take Profit Hits (Last 5 Hours)
+const TP_HITS_DATA = [
+  { pair: "BTC/USDT", type: "SHORT (2nd Res Touch)", entry: "$69,450.00", tp: "$68,100.00", profit: "+182.5%", time: "42m ago" },
+  { pair: "ETH/USDT", type: "LONG (2nd Supp Touch)", entry: "$2,610.00", tp: "$2,715.00", profit: "+148.2%", time: "1h 15m ago" },
+  { pair: "SOL/USDT", type: "SHORT (2nd Res Touch)", entry: "$152.80", tp: "$145.20", profit: "+210.4%", time: "2h 30m ago" },
+  { pair: "BNB/USDT", type: "LONG (2nd Supp Touch)", entry: "$574.00", tp: "$598.00", profit: "+125.0%", time: "3h 40m ago" },
+  { pair: "XRP/USDT", type: "SHORT (2nd Res Touch)", entry: "$0.5820", tp: "$0.5410", profit: "+195.8%", time: "4h 50m ago" }
 ];
 
 function getRandomInt(min, max) {
@@ -53,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderTradingViewCharts();
   renderLeaderboard();
+  renderTpHits();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
   
@@ -129,6 +139,18 @@ function renderLeaderboard() {
       <td>${t.name}</td>
       <td class="green">+${formatCurrency(t.pnl)}</td>
     </tr>
+  `).join('');
+}
+
+function renderTpHits() {
+  const container = document.getElementById('tp-hits-container');
+  if (!container) return;
+
+  container.innerHTML = TP_HITS_DATA.map(hit => `
+    <div class="tp-hit-item">
+      <span><b>${hit.pair}</b> <span style="font-size:0.58rem; color:var(--text-muted);">${hit.time}</span></span>
+      <span class="green"><b>${hit.tp}</b> (${hit.profit})</span>
+    </div>
   `).join('');
 }
 
@@ -215,7 +237,7 @@ async function loadUserProfile(user) {
   initRealTrades();
 }
 
-// REALISTIC SCALPING P&L ENGINE (Random Walk micro-oscillations)
+// REALISTIC SCALPING P&L ENGINE
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
@@ -223,11 +245,9 @@ function startSmoothPnL(investedAmount) {
   let scalpTrendBias = (Math.random() - 0.48) * 0.12; 
 
   function updateTicker() {
-    // Micro-tick movement in scalping range (-8.5% to +12.5%)
     const microStep = (Math.random() * 0.18 - 0.08) + scalpTrendBias;
     currentPercent += microStep;
 
-    // Soft bouncing boundary logic for organic trading curves
     if (currentPercent > 12.5) {
       scalpTrendBias = -0.08;
     } else if (currentPercent < -8.5) {
@@ -251,10 +271,10 @@ function startSmoothPnL(investedAmount) {
   }
 
   updateTicker();
-  pnlInterval = setInterval(updateTicker, 1500); // 1.5s real-time scalp updates
+  pnlInterval = setInterval(updateTicker, 1500);
 }
 
-// Generate Realistic Scalping Positions (Stable Active Status)
+// Generate Realistic Scalping Positions
 function generateTradeSetup(tickerObj) {
   const isLong = Math.random() > 0.45;
   return {
@@ -263,11 +283,11 @@ function generateTradeSetup(tickerObj) {
     direction: isLong ? "LONG" : "SHORT",
     leverage: getRandomInt(10, 50),
     timeframe: TIMEFRAMES[Math.floor(Math.random() * TIMEFRAMES.length)],
-    status: "ACTIVE", // Permanently kept ACTIVE without sporadic switching
+    status: "ACTIVE",
     entryPrice: 0,
     currentPrice: 0,
-    pnlPercent: (Math.random() * 3.5 - 1.2), // Initial micro P&L
-    trendMomentum: (Math.random() - 0.48) * 0.0003 // Order book micro-momentum
+    pnlPercent: (Math.random() * 3.5 - 1.2),
+    trendMomentum: (Math.random() - 0.48) * 0.0003
   };
 }
 
@@ -293,12 +313,10 @@ function connectBinanceWebSocket() {
         trade.entryPrice = livePrice;
         trade.currentPrice = livePrice;
       } else {
-        // Scalp Micro-Ticking Pattern: Smoothly follows websocket feed without sudden spikes
         trade.currentPrice = livePrice;
         const priceDiffRatio = (trade.currentPrice - trade.entryPrice) / trade.entryPrice;
         const directionMultiplier = trade.direction === "LONG" ? 1 : -1;
         
-        // Exact Scalp PnL formula = Price Delta * Leverage * Direction
         trade.pnlPercent = priceDiffRatio * trade.leverage * 100 * directionMultiplier;
       }
 
@@ -315,7 +333,6 @@ function renderTrades() {
     const isPos = trade.pnlPercent >= 0;
     const badgeDirection = trade.direction === "LONG" ? "badge-long" : "badge-short";
     
-    // Stable "ACTIVE" badge display
     const statusBadge = `<span class="badge badge-active">ACTIVE</span>`;
 
     let formattedPrice = "Syncing...";

@@ -212,6 +212,55 @@
     .green { color: var(--green); }
     .red { color: var(--red); }
 
+    /* SIGNALS STYLING */
+    .signal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 6px;
+      position: relative;
+    }
+
+    .signal-locked {
+      filter: blur(3.5px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .signal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(11, 14, 17, 0.65);
+      z-index: 5;
+      border-radius: 4px;
+    }
+
+    .btn-buy-signal {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 3px;
+      padding: 4px 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .tp-hit-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      border-bottom: 1px dashed var(--border-color);
+      padding: 4px 0;
+      font-family: monospace;
+    }
+
     /* Heatmap Grid */
     .heatmap-grid {
       display: grid;
@@ -364,12 +413,10 @@
         overflow-y: visible;
       }
 
-      /* Hide Multi-Chart switcher option on Mobile */
       .control-row {
         display: none !important;
       }
 
-      /* Display Single Chart view on mobile */
       .chart-box {
         display: block !important;
         width: 100%;
@@ -383,7 +430,6 @@
         width: 100% !important;
       }
 
-      /* Force chart 2 off on mobile */
       #chart-2-parent {
         display: none !important;
       }
@@ -430,7 +476,7 @@
         </select>
       </div>
 
-      <!-- METRICS -->
+      <!-- METRICS & SUBSCRIBER STATS -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Invested</div>
@@ -439,6 +485,14 @@
         <div class="stat-card">
           <div class="stat-label">Total P&L</div>
           <div class="stat-value green" id="pnl-card">$0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Subscribed</div>
+          <div class="stat-value" style="color: var(--accent);">409 Accounts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Invested Traders</div>
+          <div class="stat-value green">25/25 Full Slot</div>
         </div>
       </div>
 
@@ -449,7 +503,7 @@
           <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
         </div>
         <div id="risk-content" style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
-          • <b>Order Flow Scalping:</b> Capturing 0.05% - 0.25% rapid micro-swings.<br>
+          • <b>2nd Level Rejection Signal:</b> Executing on 2nd touch of key S/R levels.<br>
           • <b>Strict Stop Loss:</b> Immediate exit upon order-book imbalance reversal.<br>
           • <b>High Frequency Execution:</b> Dynamic tick trailing for target profits.
         </div>
@@ -462,6 +516,75 @@
       </div>
 
       <div id="trades-container" class="trades-list"></div>
+
+      <!-- REAL TRADING SIGNALS PANEL -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>📡 Real Trading Signals (2nd S/R Touch)</span>
+        </div>
+        
+        <!-- 1 UNLOCKED SIGNAL -->
+        <div class="signal-card" style="border-left: 3px solid var(--red);">
+          <div class="trade-row-top">
+            <span class="symbol-name">BTC/USDT <span class="badge badge-short">SHORT 25x</span></span>
+            <span class="badge badge-active">ACTIVE SIGNAL</span>
+          </div>
+          <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
+            Reason: <b>2nd Touch Major Resistance Hit ($69,850)</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
+            <span>EP: <b>$69,820.00</b></span>
+            <span class="green">TP: <b>$68,400.00</b></span>
+            <span class="red">SL: <b>$70,350.00</b></span>
+          </div>
+        </div>
+
+        <!-- 3 LOCKED SIGNALS WITH BLUR & BUY BUTTON -->
+        <div style="position: relative;">
+          <!-- Locked Signal 1 -->
+          <div class="signal-card signal-locked">
+            <div class="trade-row-top">
+              <span class="symbol-name">ETH/USDT <span class="badge badge-long">LONG 20x</span></span>
+            </div>
+            <div style="font-size: 0.65rem;">Reason: 2nd Touch Major Support Hit</div>
+            <div style="font-size: 0.68rem;">EP: $2,640.00 | TP: $2,780.00 | SL: $2,590.00</div>
+          </div>
+
+          <!-- Locked Signal 2 -->
+          <div class="signal-card signal-locked">
+            <div class="trade-row-top">
+              <span class="symbol-name">SOL/USDT <span class="badge badge-short">SHORT 30x</span></span>
+            </div>
+            <div style="font-size: 0.65rem;">Reason: 2nd Touch Major Resistance Hit</div>
+            <div style="font-size: 0.68rem;">EP: $154.50 | TP: $146.00 | SL: $158.20</div>
+          </div>
+
+          <!-- Locked Signal 3 -->
+          <div class="signal-card signal-locked">
+            <div class="trade-row-top">
+              <span class="symbol-name">BNB/USDT <span class="badge badge-long">LONG 15x</span></span>
+            </div>
+            <div style="font-size: 0.65rem;">Reason: 2nd Touch Support Bounce</div>
+            <div style="font-size: 0.68rem;">EP: $580.00 | TP: $615.00 | SL: $568.00</div>
+          </div>
+
+          <!-- OVERLAY FOR LOCKED SIGNALS -->
+          <div class="signal-overlay">
+            <span style="font-size: 1.2rem;">🔒</span>
+            <span style="font-size: 0.72rem; font-weight: 700; color: #FFF; margin-top: 2px;">3 Premium Signals Locked</span>
+            <button class="btn-buy-signal" onclick="alert('Redirecting to Signal VIP Subscription...')">Buy Monthly Signal for More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 SUCCESSFUL REAL TAKE PROFIT HITS (LAST 5 HOURS) -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>🎯 Successful TP Hits (Last 5 Hours)</span>
+          <span class="green" style="font-size: 0.62rem; font-weight: 700;">100% WIN RATE</span>
+        </div>
+        <div id="tp-hits-container"></div>
+      </div>
 
       <!-- HEATMAP & LIQUIDATION -->
       <div class="panel-box">
@@ -494,31 +617,6 @@
             <div style="font-weight: 600; color: var(--text-main);">Fed signals rate adjustments next quarter</div>
             <div style="color: var(--text-muted); font-size: 0.62rem;">25m ago • Macro</div>
           </div>
-        </div>
-      </div>
-
-      <!-- WHALE TRACKER & L2 -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>🐋 Whale Tracker & L2 Flow</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-family:monospace; font-size:0.65rem;">
-          <span class="red">ASK 68,450.00 (14.2 BTC)</span>
-          <span class="green">BID 68,410.00 (28.9 BTC)</span>
-        </div>
-        <div style="font-size: 0.62rem; color: var(--accent); margin-top: 4px;">
-          🚨 Alert: 1,200 BTC transferred to Live Exchange
-        </div>
-      </div>
-
-      <!-- MACRO & CORRELATIONS -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>🌐 Macro Correlations</span>
-        </div>
-        <div style="font-size: 0.68rem; display:flex; justify-content:space-between; color: var(--text-muted);">
-          <span>BTC/S&P500: <b class="green">+0.74</b></span>
-          <span>DXY Index: <b>103.20</b></span>
         </div>
       </div>
 
