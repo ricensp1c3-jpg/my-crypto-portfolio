@@ -283,7 +283,7 @@ async function loadUserProfile(user) {
   const uidString = user.id ? user.id.replace(/-/g, '').substring(0, 8).toUpperCase() : "88219042";
   document.getElementById('account-uid').innerText = `UID# ${uidString}`;
   
-  const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
+  const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 0);
   document.getElementById('invested').innerText = formatCurrency(invested);
 
   startSmoothPnL(invested);
