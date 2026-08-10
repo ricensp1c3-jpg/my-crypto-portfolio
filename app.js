@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (toggleBtn) toggleBtn.addEventListener('click', toggleAuthMode);
   if (authBtn) authBtn.addEventListener('click', handleAuth);
 
-  // Initialize Charts with safety check
   initTradingViewCharts();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -91,7 +90,6 @@ function initTradingViewCharts() {
         "hide_side_toolbar": true
       });
     } else {
-      // Retry if script tag is still resolving
       setTimeout(renderCharts, 250);
     }
   };
