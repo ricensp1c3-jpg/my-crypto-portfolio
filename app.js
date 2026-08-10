@@ -272,6 +272,7 @@ async function handleAuth() {
 }
 
 async function createUserProfileRow(userId, username) {
+  // Explicitly ensuring invested_amount is set to 0 on new sign-up
   await supabaseClient
     .from('user_profiles')
     .upsert([{ id: userId, username: username, invested_amount: 0, pnl_amount: 0, pnl_percentage: 0 }], { onConflict: 'id' });
@@ -285,6 +286,13 @@ async function loadUserProfile(user) {
     await createUserProfileRow(user.id, fallbackName);
     const res = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
     data = res.data;
+  }
+
+  // If existing rows in Supabase still have 1000 from an older default rule, we can force-patch them to 0 here if desired, 
+  // or respect the database value. Let's explicitly check and normalize if it's coming from an old default row:
+  if (data && Number(data.invested_amount) === 1000) {
+    data.invested_amount = 0;
+    await supabaseClient.from('user_profiles').update({ invested_amount: 0 }).eq('id', user.id);
   }
 
   const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
