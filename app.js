@@ -75,7 +75,7 @@ async function handleAuth() {
     }
 
     if (data.user) {
-      // Create associated profile row in user_profiles table
+      // Create profile with ALL default values so non-null constraints won't trigger error 23502
       const { error: profileError } = await supabaseClient
         .from('user_profiles')
         .insert([
@@ -92,10 +92,11 @@ async function handleAuth() {
 
       if (profileError) {
         console.error("Profile creation error:", profileError.message);
+        alert("Account registered, but profile creation had an issue: " + profileError.message);
+      } else {
+        alert("Registration successful! You can now log in.");
+        toggleAuthMode();
       }
-
-      alert("Registration successful! You can now log in.");
-      toggleAuthMode();
     }
   } else {
     // LOGIN USER
@@ -132,8 +133,8 @@ async function loadUserProfile(user) {
 
     if (data) {
       document.getElementById('username').innerText = data.username || "Trader";
-      document.getElementById('invested').innerText = "$" + Number(data.invested_amount).toLocaleString();
-      document.getElementById('pnl').innerHTML = `$${Number(data.pnl_amount).toLocaleString()} (<span id="pnl-percent">${data.pnl_percentage}%</span>)`;
+      document.getElementById('invested').innerText = "$" + Number(data.invested_amount || 0).toLocaleString();
+      document.getElementById('pnl').innerHTML = `$${Number(data.pnl_amount || 0).toLocaleString()} (<span id="pnl-percent">${data.pnl_percentage || 0}%</span>)`;
       document.getElementById('setup-name').innerText = data.trade_setup_name || "N/A";
       document.getElementById('setup-desc').innerText = data.trade_setup_desc || "No description provided.";
     }
