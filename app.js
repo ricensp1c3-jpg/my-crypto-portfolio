@@ -28,7 +28,6 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Strict currency formatter: Always forces .00
 function formatCurrency(amount) {
   return "$" + Number(amount).toLocaleString('en-US', {
     minimumFractionDigits: 2,
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (toggleBtn) toggleBtn.addEventListener('click', toggleAuthMode);
   if (authBtn) authBtn.addEventListener('click', handleAuth);
 
-  // Initialize Desktop and Interactive Mobile Chart Widgets
+  // Initialize Charts with safety check
   initTradingViewCharts();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -57,40 +56,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// 3. TradingView Chart Initialization with Touch Interactivity
+// 3. TradingView Chart Initialization Engine
 function initTradingViewCharts() {
-  if (typeof TradingView !== "undefined") {
-    // Desktop Chart Panel
-    new TradingView.widget({
-      "autosize": true,
-      "symbol": "BINANCE:BTCUSDT",
-      "interval": "15",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#181a20",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "container_id": "tradingview_desktop"
-    });
+  const renderCharts = () => {
+    if (typeof TradingView !== "undefined") {
+      // Desktop Chart
+      new TradingView.widget({
+        "autosize": true,
+        "symbol": "BINANCE:BTCUSDT",
+        "interval": "15",
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#181a20",
+        "enable_publishing": false,
+        "allow_symbol_change": true,
+        "container_id": "tradingview_desktop"
+      });
 
-    // Mobile Chart (Interactive gestures enabled)
-    new TradingView.widget({
-      "autosize": true,
-      "symbol": "BINANCE:BTCUSDT",
-      "interval": "15",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#181a20",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "container_id": "tradingview_mobile",
-      "hide_side_toolbar": true
-    });
-  }
+      // Mobile Chart
+      new TradingView.widget({
+        "autosize": true,
+        "symbol": "BINANCE:BTCUSDT",
+        "interval": "15",
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#181a20",
+        "enable_publishing": false,
+        "allow_symbol_change": true,
+        "container_id": "tradingview_mobile",
+        "hide_side_toolbar": true
+      });
+    } else {
+      // Retry if script tag is still resolving
+      setTimeout(renderCharts, 250);
+    }
+  };
+
+  renderCharts();
 }
 
 // 4. Toggle Auth Mode
@@ -170,11 +176,9 @@ async function loadUserProfile(user) {
 
     const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
     
-    // Updates Header Title to: "[USERNAME]'s Trading Account"
     document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'s Trading Account`;
     
     const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
-    // Display Invested Amount always ending in .00
     document.getElementById('invested').innerText = formatCurrency(invested);
 
     startSmoothPnL(invested);
@@ -185,7 +189,7 @@ async function loadUserProfile(user) {
   }
 }
 
-// 7. Smooth Overall P&L Generator (Always with .00 formatting)
+// 7. Smooth Overall P&L Generator
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
@@ -208,7 +212,6 @@ function startSmoothPnL(investedAmount) {
     const isPositive = currentPercent >= 0;
     const pnlSign = isPositive ? "+$" : "-$";
     
-    // Format dollar amount with forced .00 decimals
     const formattedDollar = pnlSign + Math.abs(calculatedPnlDollar).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2

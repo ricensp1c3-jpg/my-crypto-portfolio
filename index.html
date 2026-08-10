@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>TradEaTravel Pro</title>
+
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- TradingView Library (Required for charts to load) -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
   <style>
     :root {
       --bg-main: #0b0e11;
@@ -211,6 +216,7 @@
       flex-grow: 1;
       height: 100%;
       background: var(--bg-main);
+      position: relative;
     }
 
     /* Desktop Bottom Logout Button */
@@ -227,7 +233,7 @@
       width: 100%;
     }
 
-    /* Embedded Mobile Chart Section (Below active positions) */
+    /* Embedded Mobile Chart Section */
     .mobile-chart-section {
       display: none;
       width: 100%;
@@ -235,7 +241,7 @@
       margin-top: 10px;
       border-top: 1px solid var(--border-color);
       padding-top: 10px;
-      touch-action: auto !important; /* Enable phone touch gestures */
+      touch-action: auto !important;
     }
 
     /* Responsive Mobile Overrides */
@@ -260,19 +266,19 @@
       }
 
       .chart-box {
-        display: none; /* Hide side panel on phone */
+        display: none;
       }
 
       .mobile-chart-section {
-        display: block; /* Show chart below active trades */
+        display: block;
       }
 
       .btn-logout-desktop {
-        display: none; /* Hide bottom sidebar button on phone */
+        display: none;
       }
 
       .btn-logout-mobile {
-        display: block; /* Show upper-right logout button on phone */
+        display: block;
       }
     }
 
@@ -387,7 +393,7 @@
         <!-- Live WebSocket Trades Render Here -->
       </div>
 
-      <!-- EMBEDDED MOBILE CHART (POSITIONED DIRECTLY BELOW ACTIVE POSITIONS) -->
+      <!-- EMBEDDED MOBILE CHART -->
       <div class="mobile-chart-section">
         <div class="section-title" style="margin-bottom: 8px;">
           <span>Live Interactive Chart</span>
