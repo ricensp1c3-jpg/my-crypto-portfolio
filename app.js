@@ -9,7 +9,6 @@ let isSignUpMode = false;
 let pnlInterval = null;
 let currentPercent = 0.0;
 let binanceSocket = null;
-let currentTheme = "dark";
 
 const TICKER_POOL = [
   { symbol: "BTCUSDT", displaySymbol: "BTC/USDT" },
@@ -61,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (toggleBtn) toggleBtn.addEventListener('click', toggleAuthMode);
   if (authBtn) authBtn.addEventListener('click', handleAuth);
 
-  renderTradingViewCharts(currentTheme);
+  renderTradingViewCharts();
   renderLeaderboard();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -74,11 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Explicit Widget Re-Mount Engine to Fix White Screens
-function renderTradingViewCharts(themeName) {
-  const tvTheme = (themeName === "light") ? "light" : "dark";
-  const bgColor = (themeName === "light") ? "#FFFFFF" : (themeName === "cyberpunk" ? "#0D0E24" : "#181A20");
-
+// Load TradingView in Permanent Binance Dark Mode
+function renderTradingViewCharts() {
   const parent1 = document.getElementById('chart-1-parent');
   const parent2 = document.getElementById('chart-2-parent');
 
@@ -91,10 +87,10 @@ function renderTradingViewCharts(themeName) {
       "symbol": "BINANCE:BTCUSDT",
       "interval": "15",
       "timezone": "Etc/UTC",
-      "theme": tvTheme,
+      "theme": "dark",
       "style": "1",
       "locale": "en",
-      "toolbar_bg": bgColor,
+      "toolbar_bg": "#181A20",
       "container_id": "tradingview_desktop_1"
     });
 
@@ -103,19 +99,13 @@ function renderTradingViewCharts(themeName) {
       "symbol": "BINANCE:ETHUSDT",
       "interval": "15",
       "timezone": "Etc/UTC",
-      "theme": tvTheme,
+      "theme": "dark",
       "style": "1",
       "locale": "en",
-      "toolbar_bg": bgColor,
+      "toolbar_bg": "#181A20",
       "container_id": "tradingview_desktop_2"
     });
   }
-}
-
-function changeTheme(themeName) {
-  currentTheme = themeName;
-  document.body.setAttribute('data-theme', themeName);
-  renderTradingViewCharts(themeName);
 }
 
 function changeLayout(layoutType) {

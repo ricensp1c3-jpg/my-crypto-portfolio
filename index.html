@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   
-  <!-- FAVICON USING YOUR IMAGE -->
+  <!-- FAVICON -->
   <link rel="icon" href="images/tradeatravel.jpg" type="image/jpeg">
 
   <title>TradEaTravel Pro Terminal</title>
@@ -14,8 +14,8 @@
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
   <style>
-    /* Dark Theme (Default) */
-    :root[data-theme="dark"] {
+    /* Strict Permanent Binance Dark Theme */
+    :root {
       --bg-main: #0B0E11;
       --bg-card: #181A20;
       --bg-input: #0B0E11;
@@ -27,36 +27,6 @@
       --red: #F6465D;
       --red-bg: rgba(246, 70, 93, 0.12);
       --accent: #F0B90B;
-    }
-
-    /* Light Theme */
-    :root[data-theme="light"] {
-      --bg-main: #F0F3F8;
-      --bg-card: #FFFFFF;
-      --bg-input: #EAECEF;
-      --border-color: #D0D5DD;
-      --text-main: #1E2329;
-      --text-muted: #5E6673;
-      --green: #03A66D;
-      --green-bg: rgba(3, 166, 109, 0.12);
-      --red: #CF304A;
-      --red-bg: rgba(207, 48, 74, 0.12);
-      --accent: #D9A300;
-    }
-
-    /* Cyberpunk Theme */
-    :root[data-theme="cyberpunk"] {
-      --bg-main: #05050D;
-      --bg-card: #0D0E24;
-      --bg-input: #05050D;
-      --border-color: #FF007F;
-      --text-main: #00F0FF;
-      --text-muted: #9D00FF;
-      --green: #00FF66;
-      --green-bg: rgba(0, 255, 102, 0.15);
-      --red: #FF0055;
-      --red-bg: rgba(255, 0, 85, 0.15);
-      --accent: #FFE600;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -90,11 +60,11 @@
       z-index: 10;
     }
 
-    /* Header Row (Logo 100x100 + Title + Theme Switcher Right) */
+    /* Header Row (Logo 100x100 + Account Title) */
     .brand-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border-color);
     }
@@ -113,30 +83,24 @@
     .brand-title-wrap {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       flex-grow: 1;
     }
 
     .brand-title {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.5px;
       color: var(--text-main);
       text-transform: uppercase;
-      line-height: 1.2;
+      line-height: 1.3;
     }
 
-    .theme-select-inline {
-      background: var(--bg-input);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 4px 6px;
-      border-radius: 4px;
-      font-size: 0.7rem;
+    .brand-subtitle {
+      font-size: 0.65rem;
+      color: var(--accent);
       font-weight: 600;
-      cursor: pointer;
-      outline: none;
-      width: 100%;
+      letter-spacing: 0.5px;
     }
 
     /* Layout Controls */
@@ -296,7 +260,7 @@
       border-bottom: 1px dashed var(--border-color);
     }
 
-    /* Right Chart Panel Fixes */
+    /* Chart Container Dark Fix */
     .chart-box {
       flex-grow: 1;
       height: 100%;
@@ -333,7 +297,7 @@
     .auth-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(11, 14, 17, 0.94);
+      background: rgba(11, 14, 17, 0.95);
       backdrop-filter: blur(6px);
       display: flex;
       justify-content: center;
@@ -385,7 +349,7 @@
     }
   </style>
 </head>
-<body data-theme="dark">
+<body>
 
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="auth-overlay">
@@ -408,16 +372,12 @@
     <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
-      <!-- HEADER: 100px Logo + Account Title + Theme Dropdown to the Right -->
+      <!-- HEADER: 100px Logo + Account Title -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
         <div class="brand-title-wrap">
           <span class="brand-title" id="account-title">TRADING ACCOUNT</span>
-          <select id="theme-select" class="theme-select-inline" onchange="changeTheme(this.value)">
-            <option value="dark">🎨 Dark Theme</option>
-            <option value="light">☀️ Light Theme</option>
-            <option value="cyberpunk">⚡ Cyberpunk</option>
-          </select>
+          <span class="brand-subtitle">BINANCE PRO TERMINAL</span>
         </div>
       </div>
 
@@ -468,10 +428,10 @@
           <span>🔥 Heatmap & Liquidations</span>
         </div>
         <div class="heatmap-grid">
-          <div class="heatmap-tile green-bg green">BTC +2.4%</div>
-          <div class="heatmap-tile green-bg green">ETH +1.8%</div>
-          <div class="heatmap-tile red-bg red">SOL -3.1%</div>
-          <div class="heatmap-tile green-bg green">BNB +0.5%</div>
+          <div class="heatmap-tile" style="background: var(--green-bg); color: var(--green);">BTC +2.4%</div>
+          <div class="heatmap-tile" style="background: var(--green-bg); color: var(--green);">ETH +1.8%</div>
+          <div class="heatmap-tile" style="background: var(--red-bg); color: var(--red);">SOL -3.1%</div>
+          <div class="heatmap-tile" style="background: var(--green-bg); color: var(--green);">BNB +0.5%</div>
         </div>
         <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 6px;">
           ⚡ BTC Short Liquidation Wall: <b>$71,800</b>
