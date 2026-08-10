@@ -1,3 +1,7 @@
+// ==========================================
+// TRADEATRAVEL PRO TERMINAL - APP.JS
+// ==========================================
+
 // Supabase Configuration
 const SUPABASE_URL = "https://obdkqdfalmqnebrmtzwh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZGtxZGZhbG1xbmVicm10endoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMjc3NjksImV4cCI6MjEwMTkwMzc2OX0.0-cSxWTrAyNMrQQtaEaXlZPzyP_0nZzad0738-DRbDo"; 
@@ -263,7 +267,7 @@ async function handleAuth() {
 async function createUserProfileRow(userId, username) {
   await supabaseClient
     .from('user_profiles')
-    .upsert([{ id: userId, username: username, invested_amount: 1000, pnl_amount: 0, pnl_percentage: 0 }], { onConflict: 'id' });
+    .upsert([{ id: userId, username: username, invested_amount: 0, pnl_amount: 0, pnl_percentage: 0 }], { onConflict: 'id' });
 }
 
 async function loadUserProfile(user) {
@@ -283,7 +287,7 @@ async function loadUserProfile(user) {
   const uidString = user.id ? user.id.replace(/-/g, '').substring(0, 8).toUpperCase() : "88219042";
   document.getElementById('account-uid').innerText = `UID# ${uidString}`;
   
-  const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 0);
+  const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 0;
   document.getElementById('invested').innerText = formatCurrency(invested);
 
   startSmoothPnL(invested);
@@ -317,7 +321,7 @@ function startSmoothPnL(investedAmount) {
       scalpTrendBias = -0.10;
     }
 
-    const formattedPercent = ((calculatedPnlDollar / investedAmount) * 100).toFixed(2);
+    const formattedPercent = investedAmount > 0 ? ((calculatedPnlDollar / investedAmount) * 100).toFixed(2) : "0.00";
 
     const pnlElement = document.getElementById('pnl-card');
     const isPositive = calculatedPnlDollar >= 0;
