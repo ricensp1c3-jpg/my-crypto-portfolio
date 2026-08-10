@@ -7,6 +7,7 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let isSignUpMode = false;
 let pnlInterval = null; // Holds the 3-second live ticker timer
+let currentPercent = 0.0; // Keeps track of current percentage for realistic stepping
 
 // 2. DOM Loaded Event & Auth Listener Setup
 document.addEventListener('DOMContentLoaded', async () => {
@@ -107,7 +108,7 @@ async function createUserProfileRow(userId, username) {
       { 
         id: userId, 
         username: username, 
-        invested_amount: 1000, // Default starting investment if zero
+        invested_amount: 1000, 
         pnl_amount: 0, 
         pnl_percentage: 0, 
         trade_setup_name: "Live Scalping", 
@@ -120,7 +121,7 @@ async function createUserProfileRow(userId, username) {
   }
 }
 
-// 5. Fetch Profile & Start Live Moving P&L Ticker
+// 5. Fetch Profile & Start Realistic Moving P&L
 async function loadUserProfile(user) {
   try {
     let { data, error } = await supabaseClient
@@ -150,15 +151,14 @@ async function loadUserProfile(user) {
     const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
     document.getElementById('username').innerText = finalUsername;
     
-    // Fallback invested amount to $1,000 if set to 0 so dollar calculations work visually
     const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
     document.getElementById('invested').innerText = "$" + invested.toLocaleString();
 
     document.getElementById('setup-name').innerText = (data && data.trade_setup_name) ? data.trade_setup_name : "Live Scalping";
     document.getElementById('setup-desc').innerText = (data && data.trade_setup_desc) ? data.trade_setup_desc : "Real-time automated strategy tracker.";
 
-    // START MOVING P&L INTERVAL (-14% to +11%)
-    startMovingPnL(invested);
+    // START SMOOTH ASCENDING / DESCENDING TICKER
+    startSmoothPnL(invested);
 
   } catch (err) {
     console.error("Script execution error:", err);
@@ -166,30 +166,41 @@ async function loadUserProfile(user) {
   }
 }
 
-// 6. Live P&L Moving Generator (-14% to +11% every 3 seconds)
-function startMovingPnL(investedAmount) {
+// 6. Smooth Incremental P&L Movement Generator (-14.0% to +11.0%)
+function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
+  // Set initial starting percent inside range
+  currentPercent = (Math.random() * (11 - (-14)) + (-14));
+
   function updateTicker() {
-    // Generate random float between -14.00% and +11.00%
     const minPercent = -14.0;
     const maxPercent = 11.0;
-    const randomPercent = (Math.random() * (maxPercent - minPercent) + minPercent).toFixed(2);
+
+    // Random small delta shift between -1.2% and +1.2% per update
+    const delta = (Math.random() * 2.4 - 1.2);
+    currentPercent += delta;
+
+    // Bounce off boundaries if limits reached
+    if (currentPercent > maxPercent) currentPercent = maxPercent - Math.random() * 0.5;
+    if (currentPercent < minPercent) currentPercent = minPercent + Math.random() * 0.5;
+
+    const formattedPercent = currentPercent.toFixed(2);
     
-    // Calculate dollar P&L based on percentage and invested amount
-    const calculatedPnlDollar = (investedAmount * (randomPercent / 100)).toFixed(2);
+    // Calculate exact dollar amount based on current percentage and invested capital
+    const calculatedPnlDollar = (investedAmount * (currentPercent / 100)).toFixed(2);
 
     const pnlElement = document.getElementById('pnl-card');
-    const isPositive = randomPercent >= 0;
+    const isPositive = currentPercent >= 0;
     const pnlSign = isPositive ? "+$" : "-$";
     const formattedDollar = pnlSign + Math.abs(calculatedPnlDollar).toLocaleString();
 
-    // Toggle Red / Green styles dynamically
+    // Toggle Red / Green visual style
     pnlElement.className = isPositive ? "green" : "red";
-    pnlElement.innerHTML = `${formattedDollar} (<span id="pnl-percent">${isPositive ? '+' : ''}${randomPercent}%</span>)`;
+    pnlElement.innerHTML = `${formattedDollar} (<span id="pnl-percent">${isPositive ? '+' : ''}${formattedPercent}%</span>)`;
   }
 
-  // Run immediately once, then repeat every 3,000 ms (3 seconds)
+  // Run immediately, then repeat every 3 seconds
   updateTicker();
   pnlInterval = setInterval(updateTicker, 3000);
 }
