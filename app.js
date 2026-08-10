@@ -22,27 +22,28 @@ const TICKER_POOL = [
 const TIMEFRAMES = ["2h", "4h", "8h", "12h"];
 let currentTrades = [];
 
+// Leaderboard updated with Season 5 winners and exact odd amount figures
 const LEADERBOARD_DATA = [
-  { rank: 1, name: "CryptoWhale_X", pnl: 77000 },
-  { rank: 2, name: "AlphaTrader99", pnl: 71400 },
-  { rank: 3, name: "SatoshiDream", pnl: 65800 },
-  { rank: 4, name: "BullishViper", pnl: 61200 },
-  { rank: 5, name: "ApexScalper", pnl: 56900 },
-  { rank: 6, name: "NovaTrader_88", pnl: 52100 },
-  { rank: 7, name: "ZenithTrades", pnl: 48300 },
-  { rank: 8, name: "ShadowMargin", pnl: 44000 },
-  { rank: 9, name: "QuantumCap", pnl: 40500 },
-  { rank: 10, name: "MatrixBull", pnl: 37200 },
-  { rank: 11, name: "Vanguard_K", pnl: 34100 },
-  { rank: 12, name: "SolanaKing", pnl: 31000 },
-  { rank: 13, name: "CyberTrader7", pnl: 28400 },
-  { rank: 14, name: "HyperTrend", pnl: 25900 },
-  { rank: 15, name: "DeltaHedge_M", pnl: 23200 },
-  { rank: 16, name: "OrbitalTrades", pnl: 21000 },
-  { rank: 17, name: "KryptoKnight", pnl: 19100 },
-  { rank: 18, name: "MacroRider", pnl: 17300 },
-  { rank: 19, name: "VeloxTrade", pnl: 15600 },
-  { rank: 20, name: "AeroTrader_J", pnl: 14119 }
+  { rank: 1, name: "CryptoWhale_X", pnl: 76592.00 },
+  { rank: 2, name: "AlphaTrader99", pnl: 71418.50 },
+  { rank: 3, name: "SatoshiDream", pnl: 65830.25 },
+  { rank: 4, name: "BullishViper", pnl: 61245.80 },
+  { rank: 5, name: "ApexScalper", pnl: 56910.15 },
+  { rank: 6, name: "NovaTrader_88", pnl: 52140.90 },
+  { rank: 7, name: "ZenithTrades", pnl: 48395.40 },
+  { rank: 8, name: "ShadowMargin", pnl: 44012.60 },
+  { rank: 9, name: "QuantumCap", pnl: 40580.30 },
+  { rank: 10, name: "MatrixBull", pnl: 37215.75 },
+  { rank: 11, name: "Vanguard_K", pnl: 34188.10 },
+  { rank: 12, name: "SolanaKing", pnl: 31050.40 },
+  { rank: 13, name: "CyberTrader7", pnl: 28420.85 },
+  { rank: 14, name: "HyperTrend", pnl: 25930.60 },
+  { rank: 15, name: "DeltaHedge_M", pnl: 23215.00 },
+  { rank: 16, name: "OrbitalTrades", pnl: 21080.20 },
+  { rank: 17, name: "KryptoKnight", pnl: 19145.50 },
+  { rank: 18, name: "MacroRider", pnl: 17310.90 },
+  { rank: 19, name: "VeloxTrade", pnl: 15640.35 },
+  { rank: 20, name: "AeroTrader_J", pnl: 14119.00 }
 ];
 
 function getRandomInt(min, max) {
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Load TradingView in Permanent Binance Dark Mode
+// Load TradingView Charts
 function renderTradingViewCharts() {
   const parent1 = document.getElementById('chart-1-parent');
   const parent2 = document.getElementById('chart-2-parent');
@@ -134,7 +135,7 @@ function renderLeaderboard() {
     <tr>
       <td><b>#${t.rank}</b></td>
       <td>${t.name}</td>
-      <td class="green">+$${t.pnl.toLocaleString()}</td>
+      <td class="green">+${formatCurrency(t.pnl)}</td>
     </tr>
   `).join('');
 }
@@ -208,7 +209,10 @@ async function loadUserProfile(user) {
 
   const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
   
+  // Set account name and replace BINANCE PRO TERMINAL title with User's Generated ID
   document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'S TRADING ACCOUNT`;
+  const shortId = user.id ? user.id.substring(0, 8).toUpperCase() : "REG-88219";
+  document.getElementById('account-id').innerText = `ID: #${shortId}`;
   
   const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
   document.getElementById('invested').innerText = formatCurrency(invested);

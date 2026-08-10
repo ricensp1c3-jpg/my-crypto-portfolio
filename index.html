@@ -101,6 +101,7 @@
       color: var(--accent);
       font-weight: 600;
       letter-spacing: 0.5px;
+      font-family: monospace;
     }
 
     /* Layout Controls */
@@ -372,12 +373,12 @@
     <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
-      <!-- HEADER: 100px Logo + Account Title -->
+      <!-- HEADER: 100px Logo + Account Title & Account ID -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
         <div class="brand-title-wrap">
           <span class="brand-title" id="account-title">TRADING ACCOUNT</span>
-          <span class="brand-subtitle">BINANCE PRO TERMINAL</span>
+          <span class="brand-subtitle" id="account-id">ID: #---</span>
         </div>
       </div>
 
@@ -417,7 +418,7 @@
       <!-- POSITIONS -->
       <div class="section-title">
         <span><span class="live-dot"></span>Active Positions</span>
-        <span style="font-size: 0.62rem; color: var(--text-muted);">BINANCE LIVE</span>
+        <span style="font-size: 0.62rem; color: var(--text-muted);">LIVE MARKET</span>
       </div>
 
       <div id="trades-container" class="trades-list"></div>
@@ -466,7 +467,7 @@
           <span class="green">BID 68,410.00 (28.9 BTC)</span>
         </div>
         <div style="font-size: 0.62rem; color: var(--accent); margin-top: 4px;">
-          🚨 Alert: 1,200 BTC transferred to Binance
+          🚨 Alert: 1,200 BTC transferred to Live Exchange
         </div>
       </div>
 
@@ -481,15 +482,15 @@
         </div>
       </div>
 
-      <!-- COMPETITION LEADERBOARD -->
+      <!-- COMPETITION LEADERBOARD: SEASON 5 TRADING GAINERS -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🏆 Top Traders Tournament</span>
+          <span>🏆 Season 5 Trading Gainers</span>
         </div>
         <div style="max-height: 110px; overflow-y: auto;">
           <table class="leaderboard-table">
             <thead>
-              <tr><th>#</th><th>Trader</th><th>P&L</th></tr>
+              <tr><th>#</th><th>Trader</th><th>Gain</th></tr>
             </thead>
             <tbody id="leaderboard-body"></tbody>
           </table>
