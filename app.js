@@ -75,28 +75,10 @@ async function handleAuth() {
     }
 
     if (data.user) {
-      // Create associated profile row in user_profiles table
-      const { error: profileError } = await supabaseClient
-        .from('user_profiles')
-        .insert([
-          { 
-            id: data.user.id, 
-            username: username || "Trader", 
-            invested_amount: 0, 
-            pnl_amount: 0, 
-            pnl_percentage: 0, 
-            trade_setup_name: "No Setup Yet", 
-            trade_setup_desc: "Add your trade setups here." 
-          }
-        ]);
-
-      if (profileError) {
-        console.error("Profile creation error:", profileError.message);
-        alert("Account created, but profile error: " + profileError.message);
-      } else {
-        alert("Registration successful! Switching to login...");
-        toggleAuthMode();
-      }
+      // Create profile row in user_profiles
+      await createUserProfileRow(data.user.id, username || email.split('@')[0]);
+      alert("Registration successful! You can now log in.");
+      toggleAuthMode();
     }
   } else {
     // LOGIN USER
@@ -117,29 +99,66 @@ async function handleAuth() {
   }
 }
 
+// Helper Function: Create user profile row
+async function createUserProfileRow(userId, username) {
+  const { error } = await supabaseClient
+    .from('user_profiles')
+    .upsert([
+      { 
+        id: userId, 
+        username: username, 
+        invested_amount: 0, 
+        pnl_amount: 0, 
+        pnl_percentage: 0, 
+        trade_setup_name: "No Setup Yet", 
+        trade_setup_desc: "Add your trade setups here." 
+      }
+    ], { onConflict: 'id' });
+
+  if (error) {
+    console.error("Error creating user profile:", error.message);
+  }
+}
+
 // 5. Fetch Profile for Logged-In User
 async function loadUserProfile(user) {
   try {
-    const { data, error } = await supabaseClient
+    let { data, error } = await supabaseClient
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') {
-      console.error("Supabase error:", error.message);
-      return;
+    if (error) {
+      console.error("Supabase fetch error:", error.message);
     }
 
-    if (data) {
-      document.getElementById('username').innerText = data.username || "Trader";
-      document.getElementById('invested').innerText = "$" + Number(data.invested_amount || 0).toLocaleString();
-      document.getElementById('pnl').innerHTML = `$${Number(data.pnl_amount || 0).toLocaleString()} (<span id="pnl-percent">${data.pnl_percentage || 0}%</span>)`;
-      document.getElementById('setup-name').innerText = data.trade_setup_name || "N/A";
-      document.getElementById('setup-desc').innerText = data.trade_setup_desc || "No description provided.";
+    // IF NO PROFILE ROW EXISTS, CREATE ONE NOW!
+    if (!data) {
+      const fallbackName = user.email ? user.email.split('@')[0] : "Trader";
+      await createUserProfileRow(user.id, fallbackName);
+      
+      // Fetch again after creating
+      const res = await supabaseClient
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      data = res.data;
     }
+
+    // UPDATE SIDEBAR UI
+    const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
+    document.getElementById('username').innerText = finalUsername;
+    
+    document.getElementById('invested').innerText = "$" + Number(data ? data.invested_amount : 0).toLocaleString();
+    document.getElementById('pnl').innerHTML = `$${Number(data ? data.pnl_amount : 0).toLocaleString()} (<span id="pnl-percent">${data ? data.pnl_percentage : 0}%</span>)`;
+    document.getElementById('setup-name').innerText = (data && data.trade_setup_name) ? data.trade_setup_name : "No Setup Yet";
+    document.getElementById('setup-desc').innerText = (data && data.trade_setup_desc) ? data.trade_setup_desc : "Add your trade setups here.";
+
   } catch (err) {
-    console.error("Script error:", err);
+    console.error("Script execution error:", err);
+    document.getElementById('username').innerText = user.email ? user.email.split('@')[0] : "Trader";
   }
 }
 
