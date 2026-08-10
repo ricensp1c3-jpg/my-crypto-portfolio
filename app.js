@@ -75,7 +75,7 @@ async function handleAuth() {
     }
 
     if (data.user) {
-      // Create profile with ALL default values so non-null constraints won't trigger error 23502
+      // Create associated profile row in user_profiles table
       const { error: profileError } = await supabaseClient
         .from('user_profiles')
         .insert([
@@ -92,9 +92,9 @@ async function handleAuth() {
 
       if (profileError) {
         console.error("Profile creation error:", profileError.message);
-        alert("Account registered, but profile creation had an issue: " + profileError.message);
+        alert("Account created, but profile error: " + profileError.message);
       } else {
-        alert("Registration successful! You can now log in.");
+        alert("Registration successful! Switching to login...");
         toggleAuthMode();
       }
     }
