@@ -19,33 +19,33 @@
     /* Overall Layout: Sidebar and Chart */
     .app-container {
       display: flex;
-      height: 100vh; /* Full screen height */
-      width: 100vw; /* Full screen width */
+      height: 100vh;
+      width: 100vw;
     }
     
-    /* Left Sidebar: User Details */
+    /* Left Sidebar */
     .sidebar {
-      width: 320px;
+      width: 340px;
       background: #1c1c1e;
-      padding: 20px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid #333;
       box-sizing: border-box;
-      overflow-y: auto; /* Scroll sidebar if needed */
+      overflow-y: auto;
     }
     
-    /* Logo Container & Larger Image Style */
+    /* Logo Area */
     .logo-container {
       display: flex;
       align-items: center;
       gap: 15px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     
     .site-logo {
-      width: 95px;
-      height: 95px;
+      width: 85px;
+      height: 85px;
       border-radius: 12px; 
       object-fit: cover;
       border: 1px solid #3a3a3e;
@@ -53,51 +53,96 @@
     }
 
     .brand-name {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: #fff;
       margin: 0;
       line-height: 1.2;
     }
     
-    /* Right Area: Advanced Chart */
+    /* Right Area: Chart */
     .chart-box {
       flex-grow: 1;
       height: 100%;
       background: #121212;
     }
     
-    /* Sidebar Components */
+    /* Sidebar Cards */
     .card {
       background: #2a2a2e;
-      padding: 15px;
+      padding: 14px;
       border-radius: 8px;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
       border: 1px solid #3a3a3e;
     }
 
     h2, h3, h4 { 
-      margin: 0 0 8px 0; 
+      margin: 0 0 6px 0; 
       color: #fff; 
     }
 
-    h2 { font-size: 1.5rem; }
+    h2 { font-size: 1.4rem; }
     
     h4 { 
-      font-size: 0.8rem; 
+      font-size: 0.75rem; 
       color: #aaaaaa; 
       text-transform: uppercase; 
       letter-spacing: 1px; 
     }
 
-    .green { color: #4caf50; }
-    .red { color: #e53935; }
+    .green { color: #4caf50; font-weight: bold; }
+    .red { color: #e53935; font-weight: bold; }
 
-    .welcome-header {
-      padding: 15px;
+    /* Trades Container Styles */
+    .trades-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    /* --- AUTH & BUTTON STYLES --- */
+    .trade-item {
+      background: #1e1e22;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #38383c;
+      font-size: 0.82rem;
+    }
+
+    .trade-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .trade-details {
+      display: flex;
+      justify-content: space-between;
+      color: #bbbbbb;
+      font-size: 0.78rem;
+    }
+
+    .badge-active {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.7rem;
+    }
+
+    .badge-inactive {
+      background: rgba(229, 57, 53, 0.2);
+      color: #e53935;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.7rem;
+    }
+
+    /* Buttons */
     .btn {
       width: 100%;
       padding: 10px;
@@ -109,13 +154,12 @@
       cursor: pointer;
       margin-top: 10px;
       font-size: 0.9rem;
-      transition: background 0.2s ease;
     }
     .btn:hover { background: #0056b3; }
     .btn-danger { background: #e53935; margin-top: auto; }
     .btn-danger:hover { background: #b71c1c; }
 
-    /* Login/Register Modal Overlay */
+    /* Auth Modal Overlay */
     .auth-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -134,7 +178,6 @@
       border: 1px solid #3a3a3e;
       width: 320px;
       text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
 
     .auth-card input {
@@ -146,10 +189,6 @@
       background: #2a2a2e;
       color: white;
       box-sizing: border-box;
-      outline: none;
-    }
-    .auth-card input:focus {
-      border-color: #007aff;
     }
 
     .auth-toggle {
@@ -159,18 +198,17 @@
       margin-top: 15px;
       display: block;
     }
-    .auth-toggle:hover { text-decoration: underline; }
 
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- AUTHENTICATION OVERLAY (MODAL) -->
+  <!-- AUTH MODAL -->
   <div id="auth-modal" class="auth-overlay">
     <div class="auth-card">
       <h2 id="auth-title">Welcome Back</h2>
-      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;" id="auth-sub">Log in to access your trading portfolio</p>
+      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;" id="auth-sub">Log in to access your portfolio</p>
       
       <input type="email" id="auth-email" placeholder="Email Address">
       <input type="password" id="auth-password" placeholder="Password">
@@ -193,7 +231,7 @@
         <h1 class="brand-name">Trading Database</h1>
       </div>
 
-      <div class="welcome-header card">
+      <div class="card">
         <h4>Logged In As:</h4>
         <h2 id="username">Loading...</h2>
       </div>
@@ -208,19 +246,22 @@
         <h2 class="green" id="pnl-card">$0.00 (<span id="pnl-percent">0%</span>)</h2>
       </div>
 
+      <!-- MAIN TRADING ACCOUNT CURRENT TRADES -->
       <div class="card">
-        <h4>Active Setup</h4>
-        <h3 id="setup-name">---</h3>
-        <p id="setup-desc" style="font-size: 0.9em; color: #aaa; margin: 0;">---</p>
+        <h4>Main Trading Account</h4>
+        <p style="font-size: 0.75rem; color: #aaa; margin: 0 0 10px 0;">Current Trades</p>
+        
+        <div id="trades-container" class="trades-list">
+          <!-- Live perpetual trades render here -->
+        </div>
       </div>
 
       <!-- LOGOUT BUTTON -->
       <button class="btn btn-danger" onclick="logout()">Log Out</button>
     </div>
 
-    <!-- Right Area: THE SUPERCHART! -->
+    <!-- Right Area: Chart -->
     <div class="chart-box">
-        <!-- TradingView Widget BEGIN -->
         <div class="tradingview-widget-container" style="height:100%;width:100%">
           <div id="tradingview_12345" style="height:100%;width:100%"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -244,9 +285,7 @@
             "details": true,
             "hotlist": true,
             "calendar": true,
-            "news": [
-              "headlines"
-            ],
+            "news": ["headlines"],
             "show_popup_button": true,
             "popup_width": "1000",
             "popup_height": "650",
@@ -258,7 +297,6 @@
           );
           </script>
         </div>
-        <!-- TradingView Widget END -->
     </div>
   </div>
 
