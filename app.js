@@ -6,6 +6,7 @@ const { createClient } = window.supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let isSignUpMode = false;
+let pnlInterval = null; // Holds the 3-second live ticker timer
 
 // 2. DOM Loaded Event & Auth Listener Setup
 document.addEventListener('DOMContentLoaded', async () => {
@@ -75,7 +76,6 @@ async function handleAuth() {
     }
 
     if (data.user) {
-      // Create profile row in user_profiles
       await createUserProfileRow(data.user.id, username || email.split('@')[0]);
       alert("Registration successful! You can now log in.");
       toggleAuthMode();
@@ -107,11 +107,11 @@ async function createUserProfileRow(userId, username) {
       { 
         id: userId, 
         username: username, 
-        invested_amount: 0, 
+        invested_amount: 1000, // Default starting investment if zero
         pnl_amount: 0, 
         pnl_percentage: 0, 
-        trade_setup_name: "No Setup Yet", 
-        trade_setup_desc: "Add your trade setups here." 
+        trade_setup_name: "Live Scalping", 
+        trade_setup_desc: "Real-time automated strategy tracker." 
       }
     ], { onConflict: 'id' });
 
@@ -120,7 +120,7 @@ async function createUserProfileRow(userId, username) {
   }
 }
 
-// 5. Fetch Profile & Automatically Calculate P&L Percentage
+// 5. Fetch Profile & Start Live Moving P&L Ticker
 async function loadUserProfile(user) {
   try {
     let { data, error } = await supabaseClient
@@ -150,28 +150,15 @@ async function loadUserProfile(user) {
     const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
     document.getElementById('username').innerText = finalUsername;
     
-    const invested = Number(data ? data.invested_amount : 0);
-    const pnl = Number(data ? data.pnl_amount : 0);
-
-    // AUTOMATIC P&L PERCENTAGE CALCULATION
-    let calculatedPercentage = 0;
-    if (invested > 0) {
-      calculatedPercentage = ((pnl / invested) * 100).toFixed(2);
-    }
-
+    // Fallback invested amount to $1,000 if set to 0 so dollar calculations work visually
+    const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
     document.getElementById('invested').innerText = "$" + invested.toLocaleString();
-    
-    // Display P&L with Dynamic Green/Red Color
-    const pnlElement = document.getElementById('pnl-card');
-    const isPositive = pnl >= 0;
-    const pnlSign = isPositive ? "+$" : "-$";
-    const formattedPnl = pnlSign + Math.abs(pnl).toLocaleString();
-    
-    pnlElement.className = isPositive ? "green" : "red";
-    pnlElement.innerHTML = `${formattedPnl} (<span id="pnl-percent">${calculatedPercentage}%</span>)`;
 
-    document.getElementById('setup-name').innerText = (data && data.trade_setup_name) ? data.trade_setup_name : "No Setup Yet";
-    document.getElementById('setup-desc').innerText = (data && data.trade_setup_desc) ? data.trade_setup_desc : "Add your trade setups here.";
+    document.getElementById('setup-name').innerText = (data && data.trade_setup_name) ? data.trade_setup_name : "Live Scalping";
+    document.getElementById('setup-desc').innerText = (data && data.trade_setup_desc) ? data.trade_setup_desc : "Real-time automated strategy tracker.";
+
+    // START MOVING P&L INTERVAL (-14% to +11%)
+    startMovingPnL(invested);
 
   } catch (err) {
     console.error("Script execution error:", err);
@@ -179,8 +166,37 @@ async function loadUserProfile(user) {
   }
 }
 
-// 6. Handle Logout
+// 6. Live P&L Moving Generator (-14% to +11% every 3 seconds)
+function startMovingPnL(investedAmount) {
+  if (pnlInterval) clearInterval(pnlInterval);
+
+  function updateTicker() {
+    // Generate random float between -14.00% and +11.00%
+    const minPercent = -14.0;
+    const maxPercent = 11.0;
+    const randomPercent = (Math.random() * (maxPercent - minPercent) + minPercent).toFixed(2);
+    
+    // Calculate dollar P&L based on percentage and invested amount
+    const calculatedPnlDollar = (investedAmount * (randomPercent / 100)).toFixed(2);
+
+    const pnlElement = document.getElementById('pnl-card');
+    const isPositive = randomPercent >= 0;
+    const pnlSign = isPositive ? "+$" : "-$";
+    const formattedDollar = pnlSign + Math.abs(calculatedPnlDollar).toLocaleString();
+
+    // Toggle Red / Green styles dynamically
+    pnlElement.className = isPositive ? "green" : "red";
+    pnlElement.innerHTML = `${formattedDollar} (<span id="pnl-percent">${isPositive ? '+' : ''}${randomPercent}%</span>)`;
+  }
+
+  // Run immediately once, then repeat every 3,000 ms (3 seconds)
+  updateTicker();
+  pnlInterval = setInterval(updateTicker, 3000);
+}
+
+// 7. Handle Logout
 async function logout() {
+  if (pnlInterval) clearInterval(pnlInterval);
   await supabaseClient.auth.signOut();
   window.location.reload();
 }
