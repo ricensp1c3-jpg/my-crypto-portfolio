@@ -277,21 +277,7 @@
       font-weight: 700;
     }
 
-    /* Feed & Leaderboard */
-    .feed-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 110px;
-      overflow-y: auto;
-      font-size: 0.7rem;
-    }
-
-    .feed-item {
-      border-bottom: 1px dashed var(--border-color);
-      padding-bottom: 4px;
-    }
-
+    /* Leaderboard Table */
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
@@ -499,13 +485,13 @@
       <!-- SCALPING RISK ENGINE -->
       <div class="panel-box">
         <div class="section-title">
-          <span>💡 4H Dynamic Cycle & Cut-Loss Engine</span>
+          <span>💡 Dynamic Engine & Cut-Loss</span>
           <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
         </div>
         <div id="risk-content" style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
-          • <b>Strict Stop Loss:</b> Dynamic hard cut-loss enforced at <b>-8.00%</b>.<br>
-          • <b>4-Hour Shift:</b> Active positions and market win rate rotate every 4 hours.<br>
-          • <b>Realistic Distribution:</b> Accounts for normal drawdowns and profit cycles.
+          • <b>Micro-Gains:</b> Realized trade profits strictly capped under <b>+$150.00</b>.<br>
+          • <b>Strict Stop Loss:</b> Cut-loss strictly triggered at <b>-8.00%</b>.<br>
+          • <b>Peak High Watermark:</b> 2% chance peak gain visibility up to <b>$1,479.00 max</b>.
         </div>
       </div>
 
@@ -560,10 +546,10 @@
         </div>
       </div>
 
-      <!-- 5 SUCCESSFUL TAKE PROFIT HITS -->
+      <!-- REALIZED TRADES WITH CAPPED SMALL GAINS -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🎯 Realized Trades (Last 5 Hours)</span>
+          <span>🎯 Micro Realized Trades (Last 5 Hours)</span>
           <span id="winrate-badge" class="green" style="font-size: 0.62rem; font-weight: 700;">80% WIN RATE</span>
         </div>
         <div id="tp-hits-container"></div>
@@ -585,7 +571,7 @@
       <!-- LEADERBOARD -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🏆 Season 5 Trading Gainers (Top 10)</span>
+          <span>🏆 Season 5 Micro Gainers (Top 10)</span>
         </div>
         <div style="max-height: 140px; overflow-y: auto;">
           <table class="leaderboard-table">

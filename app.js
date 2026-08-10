@@ -22,18 +22,18 @@ const TICKER_POOL = [
 const TIMEFRAMES = ["1m", "3m", "5m"];
 let currentTrades = [];
 
-// Leaderboard Top 10
+// Leaderboard Top Tier - Scaled down to reflect realistic gains (Max cap $1,479.00)
 const LEADERBOARD_DATA = [
-  { rank: 1, name: "CryptoWhale_X", pnl: 27955.00 },
-  { rank: 2, name: "AlphaTrader99", pnl: 25840.45 },
-  { rank: 3, name: "SatoshiDream", pnl: 24190.20 },
-  { rank: 4, name: "BullishViper", pnl: 22755.80 },
-  { rank: 5, name: "ApexScalper", pnl: 21310.15 },
-  { rank: 6, name: "NovaTrader_88", pnl: 19840.90 },
-  { rank: 7, name: "ZenithTrades", pnl: 18695.40 },
-  { rank: 8, name: "ShadowMargin", pnl: 17412.60 },
-  { rank: 9, name: "QuantumCap", pnl: 16580.30 },
-  { rank: 10, name: "MatrixBull", pnl: 15651.00 }
+  { rank: 1, name: "CryptoWhale_X", pnl: 1479.00 },
+  { rank: 2, name: "AlphaTrader99", pnl: 1380.45 },
+  { rank: 3, name: "SatoshiDream", pnl: 1210.20 },
+  { rank: 4, name: "BullishViper", pnl: 1055.80 },
+  { rank: 5, name: "ApexScalper", pnl: 920.15 },
+  { rank: 6, name: "NovaTrader_88", pnl: 840.90 },
+  { rank: 7, name: "ZenithTrades", pnl: 695.40 },
+  { rank: 8, name: "ShadowMargin", pnl: 512.60 },
+  { rank: 9, name: "QuantumCap", pnl: 380.30 },
+  { rank: 10, name: "MatrixBull", pnl: 251.00 }
 ];
 
 function getRandomInt(min, max) {
@@ -124,23 +124,23 @@ function renderDynamicSignal(seed) {
   `;
 }
 
-// Render Realized Trades (Includes Losses to keep Win Rate realistic)
+// RENDER REALIZED TRADES (Strictly Small Dollar Amounts: Max $150 Gain per Trade)
 function renderRealizedTrades(seed) {
   const container = document.getElementById('tp-hits-container');
   if (!container) return;
 
   const realizedList = [
-    { pair: "BTC/USDT", type: "SHORT", entry: "$69,450.00", exit: "$68,100.00", result: "+182.5%", isWin: true, time: "42m ago" },
-    { pair: "ETH/USDT", type: "LONG", entry: "$2,610.00", exit: "$2,715.00", result: "+148.2%", isWin: true, time: "1h 15m ago" },
-    { pair: "SOL/USDT", type: "LONG", entry: "$152.80", exit: "$148.20", result: "-8.00%", isWin: false, time: "2h 10m ago" }, // CUT LOSS
-    { pair: "BNB/USDT", type: "LONG", entry: "$574.00", exit: "$598.00", result: "+125.0%", isWin: true, time: "3h 40m ago" },
-    { pair: "XRP/USDT", type: "SHORT", entry: "$0.5820", exit: "$0.5410", result: "+195.8%", isWin: true, time: "4h 50m ago" }
+    { pair: "BTC/USDT", exit: "$68,910.00", dollarGain: "+$148.50", pct: "+4.2%", isWin: true, time: "28m ago" }, // CAPPED UNDER $150
+    { pair: "ETH/USDT", exit: "$2,682.00", dollarGain: "+$84.20", pct: "+2.8%", isWin: true, time: "1h 10m ago" },
+    { pair: "SOL/USDT", exit: "$148.20", dollarGain: "-$32.00", pct: "-8.00%", isWin: false, time: "2h 05m ago" }, // CUT LOSS AT -8%
+    { pair: "BNB/USDT", exit: "$589.50", dollarGain: "+$112.00", pct: "+3.6%", isWin: true, time: "3h 25m ago" },
+    { pair: "XRP/USDT", exit: "$0.5640", dollarGain: "+$45.80", pct: "+1.9%", isWin: true, time: "4h 40m ago" }
   ];
 
   container.innerHTML = realizedList.map(hit => `
     <div class="tp-hit-item">
       <span><b>${hit.pair}</b> <span style="font-size:0.58rem; color:var(--text-muted);">${hit.time}</span></span>
-      <span class="${hit.isWin ? 'green' : 'red'}"><b>${hit.exit}</b> (${hit.result})</span>
+      <span class="${hit.isWin ? 'green' : 'red'}"><b>${hit.dollarGain}</b> (${hit.pct})</span>
     </div>
   `).join('');
 }
@@ -293,30 +293,41 @@ async function loadUserProfile(user) {
   initRealTrades();
 }
 
-// REALISTIC SCALPING P&L ENGINE (Allows drawdowns & triggers Cut Loss at -8%)
+// REALISTIC SCALPING P&L ENGINE (Includes 2% chance of highest peak gain at max $1,479.00)
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
   currentPercent = (Math.random() * 4.0 - 2.0); // Realistic start (-2% to +2%)
   let scalpTrendBias = (Math.random() - 0.5) * 0.15; 
 
+  // 2% PROBABILITY HIGHEST AMOUNT PEAK ($1,479 MAX CAP)
+  const isRare2PercentEvent = Math.random() < 0.02;
+
   function updateTicker() {
     const microStep = (Math.random() * 0.24 - 0.12) + scalpTrendBias;
     currentPercent += microStep;
 
-    // HARD STOP LOSS ENFORCED AT -8%
+    // CUT LOSS TRIGGERED AT -8.00%
     if (currentPercent <= -8.0) {
-      currentPercent = -8.00; // Trigger Cut Loss
-      scalpTrendBias = 0.12; // Bounce bias after stop loss execution
-    } else if (currentPercent > 14.0) {
+      currentPercent = -8.00;
+      scalpTrendBias = 0.12; 
+    } 
+
+    let calculatedPnlDollar = (investedAmount * (currentPercent / 100));
+
+    // IF 2% CHANCE RARE EVENT OCCURS, ALLOW PEAK DISPLAY UP TO STRICT $1,479.00 MAX
+    if (isRare2PercentEvent && calculatedPnlDollar > 1479.00) {
+      calculatedPnlDollar = 1479.00;
+    } else if (!isRare2PercentEvent && calculatedPnlDollar > 350.00) {
+      // Normal cap stays low for small account realism
+      calculatedPnlDollar = 350.00;
       scalpTrendBias = -0.10;
     }
 
-    const formattedPercent = currentPercent.toFixed(2);
-    const calculatedPnlDollar = (investedAmount * (currentPercent / 100));
+    const formattedPercent = ((calculatedPnlDollar / investedAmount) * 100).toFixed(2);
 
     const pnlElement = document.getElementById('pnl-card');
-    const isPositive = currentPercent >= 0;
+    const isPositive = calculatedPnlDollar >= 0;
     const pnlSign = isPositive ? "+$" : "-$";
     
     const formattedDollar = pnlSign + Math.abs(calculatedPnlDollar).toLocaleString('en-US', {
@@ -341,18 +352,17 @@ function generateTradeSetup(tickerObj) {
     symbol: tickerObj.symbol,
     displaySymbol: tickerObj.displaySymbol,
     direction: isLong ? "LONG" : "SHORT",
-    leverage: getRandomInt(10, 50),
+    leverage: getRandomInt(10, 30),
     timeframe: TIMEFRAMES[Math.floor(Math.random() * TIMEFRAMES.length)],
     status: "ACTIVE",
     entryPrice: 0,
     currentPrice: 0,
-    pnlPercent: (Math.random() * 4.0 - 2.0)
+    pnlPercent: (Math.random() * 3.0 - 1.5)
   };
 }
 
 function initRealTrades() {
   const seed = get4HourCycleSeed();
-  // Rotate chosen tickers based on 4-hour cycle seed
   const shuffled = [...TICKER_POOL].sort((a, b) => (a.symbol.charCodeAt(0) * seed) - (b.symbol.charCodeAt(0) * seed));
   currentTrades = shuffled.slice(0, 3).map(t => generateTradeSetup(t));
   connectBinanceWebSocket();
