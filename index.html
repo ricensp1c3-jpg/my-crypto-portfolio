@@ -2,169 +2,309 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradEaTravel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TradEaTravel Pro</title>
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      background-color: #121212;
-      color: #e0e0e0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    :root {
+      --bg-main: #0b0e11;
+      --bg-card: #181a20;
+      --bg-card-hover: #1e2329;
+      --border-color: #2b313a;
+      --text-main: #eaecef;
+      --text-muted: #848e9c;
+      --green: #0ecb81;
+      --green-bg: rgba(14, 203, 129, 0.12);
+      --red: #f6465d;
+      --red-bg: rgba(246, 70, 93, 0.12);
+      --accent: #f0b90b;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      overflow: hidden; /* App view feel */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
-    
-    /* Overall Layout: Sidebar and Chart */
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* Overall Layout */
     .app-container {
       display: flex;
       height: 100vh;
       width: 100vw;
+      flex-direction: row;
     }
-    
-    /* Left Sidebar */
+
+    /* Sidebar Navigation Area */
     .sidebar {
-      width: 340px;
-      background: #1c1c1e;
-      padding: 18px;
+      width: 320px;
+      min-width: 320px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      border-right: 1px solid #333;
-      box-sizing: border-box;
+      padding: 12px;
+      gap: 10px;
       overflow-y: auto;
+      z-index: 10;
     }
-    
-    /* Logo Area */
-    .logo-container {
+
+    /* Compact Header / Brand */
+    .brand-header {
       display: flex;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 20px;
+      gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
     }
-    
+
     .site-logo {
-      width: 85px;
-      height: 85px;
-      border-radius: 12px; 
-      object-fit: cover;
-      border: 1px solid #3a3a3e;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .brand-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #fff;
-      margin: 0;
-      line-height: 1.2;
-    }
-    
-    /* Right Area: Chart */
-    .chart-box {
-      flex-grow: 1;
-      height: 100%;
-      background: #121212;
-    }
-    
-    /* Sidebar Cards */
-    .card {
-      background: #2a2a2e;
-      padding: 14px;
+      width: 36px;
+      height: 36px;
       border-radius: 8px;
-      margin-bottom: 14px;
-      border: 1px solid #3a3a3e;
+      object-fit: cover;
+      border: 1px solid var(--border-color);
     }
 
-    h2, h3, h4 { 
-      margin: 0 0 6px 0; 
-      color: #fff; 
+    .brand-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
     }
 
-    h2 { font-size: 1.4rem; }
-    
-    h4 { 
-      font-size: 0.75rem; 
-      color: #aaaaaa; 
-      text-transform: uppercase; 
-      letter-spacing: 1px; 
+    .user-pill {
+      margin-left: auto;
+      font-size: 0.7rem;
+      background: #2b313a;
+      padding: 3px 8px;
+      border-radius: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      max-width: 90px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .green { color: #4caf50; font-weight: bold; }
-    .red { color: #e53935; font-weight: bold; }
+    /* Portfolio Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
-    /* Trades Container Styles */
+    .stat-card {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    /* Trades Section */
+    .section-title {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .live-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      margin-right: 4px;
+      box-shadow: 0 0 6px var(--green);
+    }
+
     .trades-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 6px;
     }
 
-    .trade-item {
-      background: #1e1e22;
-      padding: 10px;
+    .trade-card {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
-      border: 1px solid #38383c;
-      font-size: 0.82rem;
+      padding: 8px 10px;
+      transition: background 0.15s ease;
     }
 
-    .trade-header {
+    .trade-card:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .trade-row-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: bold;
       margin-bottom: 4px;
     }
 
-    .trade-details {
+    .symbol-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .badge-long { background: var(--green-bg); color: var(--green); }
+    .badge-short { background: var(--red-bg); color: var(--red); }
+    
+    .badge-active { border: 1px solid var(--green); color: var(--green); }
+    .badge-inactive { border: 1px solid var(--text-muted); color: var(--text-muted); }
+
+    .trade-row-bottom {
       display: flex;
       justify-content: space-between;
-      color: #bbbbbb;
-      font-size: 0.78rem;
+      align-items: center;
+      font-size: 0.75rem;
     }
 
-    .badge-active {
-      background: rgba(76, 175, 80, 0.2);
-      color: #4caf50;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 0.7rem;
+    .price-text {
+      color: var(--text-muted);
+      font-family: monospace;
     }
 
-    .badge-inactive {
-      background: rgba(229, 57, 53, 0.2);
-      color: #e53935;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 0.7rem;
+    .pnl-text {
+      font-weight: 700;
+      font-family: monospace;
     }
 
-    /* Buttons */
-    .btn {
+    .green { color: var(--green); }
+    .red { color: var(--red); }
+
+    /* Chart Container */
+    .chart-box {
+      flex-grow: 1;
+      height: 100%;
+      background: var(--bg-main);
+    }
+
+    /* Mobile Bottom Navigation Bar */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
       width: 100%;
-      padding: 10px;
-      background: #007aff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-      font-size: 0.9rem;
+      height: 50px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      z-index: 100;
     }
-    .btn:hover { background: #0056b3; }
-    .btn-danger { background: #e53935; margin-top: auto; }
-    .btn-danger:hover { background: #b71c1c; }
 
-    /* Auth Modal Overlay */
+    .mobile-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .mobile-tab.active {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Action Buttons */
+    .btn-logout {
+      margin-top: auto;
+      background: rgba(246, 70, 93, 0.1);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background: var(--red);
+      color: white;
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 768px) {
+      .app-container {
+        flex-direction: column;
+        height: calc(100vh - 50px);
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+        height: 100%;
+        border-right: none;
+      }
+
+      .chart-box {
+        display: none; /* Controlled by mobile tabs */
+        width: 100%;
+        height: 100%;
+      }
+
+      .mobile-nav {
+        display: flex;
+      }
+
+      .chart-active .chart-box {
+        display: block;
+      }
+
+      .chart-active .sidebar {
+        display: none;
+      }
+    }
+
+    /* Auth Overlay */
     .auth-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(5px);
+      background: rgba(11, 14, 17, 0.95);
+      backdrop-filter: blur(8px);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -172,31 +312,45 @@
     }
 
     .auth-card {
-      background: #1c1c1e;
-      padding: 30px;
-      border-radius: 12px;
-      border: 1px solid #3a3a3e;
-      width: 320px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      width: 300px;
       text-align: center;
     }
 
     .auth-card input {
       width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 6px;
-      border: 1px solid #3a3a3e;
-      background: #2a2a2e;
-      color: white;
-      box-sizing: border-box;
+      padding: 8px 10px;
+      margin: 6px 0;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .btn-auth {
+      width: 100%;
+      padding: 8px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      cursor: pointer;
     }
 
     .auth-toggle {
-      color: #007aff;
-      cursor: pointer;
-      font-size: 0.85rem;
-      margin-top: 15px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 12px;
       display: block;
+      cursor: pointer;
     }
 
     .hidden { display: none !important; }
@@ -204,99 +358,97 @@
 </head>
 <body>
 
-  <!-- AUTH MODAL -->
+  <!-- AUTHENTICATION OVERLAY -->
   <div id="auth-modal" class="auth-overlay">
     <div class="auth-card">
-      <h2 id="auth-title">Welcome Back</h2>
-      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;" id="auth-sub">Log in to access your portfolio</p>
+      <h3 id="auth-title" style="color: var(--text-main); margin-bottom: 4px;">Sign In</h3>
+      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px;" id="auth-sub">Access your trading terminal</p>
       
-      <input type="email" id="auth-email" placeholder="Email Address">
+      <input type="email" id="auth-email" placeholder="Email">
       <input type="password" id="auth-password" placeholder="Password">
-      <input type="text" id="auth-username" placeholder="Username (for registration)" class="hidden">
+      <input type="text" id="auth-username" placeholder="Username" class="hidden">
 
-      <button id="auth-btn" class="btn">Log In</button>
-      
-      <span class="auth-toggle" id="auth-toggle">Don't have an account? Register</span>
+      <button id="auth-btn" class="btn-auth">Log In</button>
+      <span class="auth-toggle" id="auth-toggle">Create an account</span>
     </div>
   </div>
 
   <!-- MAIN APP CONTAINER -->
-  <div class="app-container">
-    <!-- Left Sidebar -->
+  <div class="app-container" id="app-viewport">
+    
+    <!-- LEFT SIDEBAR / PORTFOLIO TERMINAL -->
     <div class="sidebar">
       
-      <!-- LOGO AREA -->
-      <div class="logo-container">
-        <img src="images/tradeatravel.jpg" alt="Trade & Travel Logo" class="site-logo">
-        <h1 class="brand-name">Trading Database</h1>
+      <!-- BRAND HEADER -->
+      <div class="brand-header">
+        <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
+        <span class="brand-title">TERMINAL</span>
+        <span class="user-pill" id="username">---</span>
       </div>
 
-      <div class="card">
-        <h4>Logged In As:</h4>
-        <h2 id="username">Loading...</h2>
-      </div>
-
-      <div class="card">
-        <h4>Invested Amount</h4>
-        <h2 id="invested">$0.00</h2>
-      </div>
-
-      <div class="card">
-        <h4>P&L Gain</h4>
-        <h2 class="green" id="pnl-card">$0.00 (<span id="pnl-percent">0%</span>)</h2>
-      </div>
-
-      <!-- MAIN TRADING ACCOUNT CURRENT TRADES -->
-      <div class="card">
-        <h4>Main Trading Account</h4>
-        <p style="font-size: 0.75rem; color: #aaa; margin: 0 0 10px 0;">Current Trades</p>
-        
-        <div id="trades-container" class="trades-list">
-          <!-- Live perpetual trades render here -->
+      <!-- PORTFOLIO METRICS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Invested</div>
+          <div class="stat-value" id="invested">$0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total P&L</div>
+          <div class="stat-value green" id="pnl-card">$0.00</div>
         </div>
       </div>
 
+      <!-- LIVE POSITIONS -->
+      <div class="section-title">
+        <span><span class="live-dot"></span>Active Positions</span>
+        <span style="font-size: 0.65rem; color: var(--text-muted);">BINANCE LIVE</span>
+      </div>
+
+      <div id="trades-container" class="trades-list">
+        <!-- Live WebSocket Trades Render Here -->
+      </div>
+
       <!-- LOGOUT BUTTON -->
-      <button class="btn btn-danger" onclick="logout()">Log Out</button>
+      <button class="btn-logout" onclick="logout()">Log Out Terminal</button>
     </div>
 
-    <!-- Right Area: Chart -->
+    <!-- RIGHT CHART BOX -->
     <div class="chart-box">
-        <div class="tradingview-widget-container" style="height:100%;width:100%">
-          <div id="tradingview_12345" style="height:100%;width:100%"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-          <script type="text/javascript">
-          new TradingView.widget(
-          {
+      <div class="tradingview-widget-container" style="height:100%;width:100%">
+        <div id="tradingview_12345" style="height:100%;width:100%"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+          new TradingView.widget({
             "autosize": true,
-            "symbol": "CRYPTOCAP:TOTAL", 
-            "interval": "D",
+            "symbol": "BINANCE:BTCUSDT", 
+            "interval": "15",
             "timezone": "Etc/UTC",
             "theme": "dark",
             "style": "1",
             "locale": "en",
-            "toolbar_bg": "#f1f3f6",
+            "toolbar_bg": "#181a20",
             "enable_publishing": false,
             "allow_symbol_change": true,
             "container_id": "tradingview_12345",
             "withdateranges": true,
             "hide_side_toolbar": false,
-            "save_image": true,
-            "details": true,
-            "hotlist": true,
-            "calendar": true,
-            "news": ["headlines"],
-            "show_popup_button": true,
-            "popup_width": "1000",
-            "popup_height": "650",
-            "studies": [
-              "RSI@tv-basicstudies",
-              "MASimple@tv-basicstudies"
-            ]
-          }
-          );
-          </script>
-        </div>
+            "save_image": false,
+            "details": false,
+            "hotlist": false,
+            "calendar": false
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE NAVIGATION TABS -->
+  <div class="mobile-nav">
+    <div class="mobile-tab active" id="tab-positions" onclick="switchMobileTab('positions')">
+      <span>POSITIONS</span>
+    </div>
+    <div class="mobile-tab" id="tab-chart" onclick="switchMobileTab('chart')">
+      <span>CHARTS</span>
     </div>
   </div>
 
