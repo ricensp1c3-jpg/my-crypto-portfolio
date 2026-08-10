@@ -261,7 +261,7 @@
       border-bottom: 1px dashed var(--border-color);
     }
 
-    /* Chart Container Dark Fix */
+    /* Chart Container */
     .chart-box {
       flex-grow: 1;
       height: 100%;
@@ -342,11 +342,51 @@
 
     .hidden { display: none !important; }
 
+    /* MOBILE / SMALL SCREEN RESPONSIVENESS FIX */
     @media (max-width: 900px) {
-      body { overflow-y: auto; }
-      .app-container { flex-direction: column; height: auto; }
-      .sidebar { width: 100%; min-width: 100%; height: auto; }
-      .chart-box { display: none; }
+      html, body {
+        overflow-x: hidden;
+        overflow-y: auto !important;
+        height: auto;
+      }
+
+      .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+        height: auto;
+        overflow-y: visible;
+      }
+
+      /* Hide Multi-Chart switcher option on Mobile */
+      .control-row {
+        display: none !important;
+      }
+
+      /* Display Single Chart view on mobile */
+      .chart-box {
+        display: block !important;
+        width: 100%;
+        height: 500px !important;
+        min-height: 500px;
+        grid-template-columns: 1fr !important;
+      }
+
+      .chart-wrapper {
+        height: 100% !important;
+        width: 100% !important;
+      }
+
+      /* Force chart 2 off on mobile */
+      #chart-2-parent {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -482,12 +522,12 @@
         </div>
       </div>
 
-      <!-- COMPETITION LEADERBOARD: SEASON 5 TRADING GAINERS -->
+      <!-- COMPETITION LEADERBOARD: TOP 10 SEASON 5 GAINERS -->
       <div class="panel-box">
         <div class="section-title">
-          <span>🏆 Season 5 Trading Gainers</span>
+          <span>🏆 Season 5 Trading Gainers (Top 10)</span>
         </div>
-        <div style="max-height: 110px; overflow-y: auto;">
+        <div style="max-height: 140px; overflow-y: auto;">
           <table class="leaderboard-table">
             <thead>
               <tr><th>#</th><th>Trader</th><th>Gain</th></tr>
