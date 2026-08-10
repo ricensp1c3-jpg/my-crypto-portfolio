@@ -120,7 +120,7 @@ async function createUserProfileRow(userId, username) {
   }
 }
 
-// 5. Fetch Profile for Logged-In User
+// 5. Fetch Profile & Automatically Calculate P&L Percentage
 async function loadUserProfile(user) {
   try {
     let { data, error } = await supabaseClient
@@ -133,12 +133,11 @@ async function loadUserProfile(user) {
       console.error("Supabase fetch error:", error.message);
     }
 
-    // IF NO PROFILE ROW EXISTS, CREATE ONE NOW!
+    // Create profile row if missing
     if (!data) {
       const fallbackName = user.email ? user.email.split('@')[0] : "Trader";
       await createUserProfileRow(user.id, fallbackName);
       
-      // Fetch again after creating
       const res = await supabaseClient
         .from('user_profiles')
         .select('*')
@@ -151,8 +150,26 @@ async function loadUserProfile(user) {
     const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
     document.getElementById('username').innerText = finalUsername;
     
-    document.getElementById('invested').innerText = "$" + Number(data ? data.invested_amount : 0).toLocaleString();
-    document.getElementById('pnl').innerHTML = `$${Number(data ? data.pnl_amount : 0).toLocaleString()} (<span id="pnl-percent">${data ? data.pnl_percentage : 0}%</span>)`;
+    const invested = Number(data ? data.invested_amount : 0);
+    const pnl = Number(data ? data.pnl_amount : 0);
+
+    // AUTOMATIC P&L PERCENTAGE CALCULATION
+    let calculatedPercentage = 0;
+    if (invested > 0) {
+      calculatedPercentage = ((pnl / invested) * 100).toFixed(2);
+    }
+
+    document.getElementById('invested').innerText = "$" + invested.toLocaleString();
+    
+    // Display P&L with Dynamic Green/Red Color
+    const pnlElement = document.getElementById('pnl-card');
+    const isPositive = pnl >= 0;
+    const pnlSign = isPositive ? "+$" : "-$";
+    const formattedPnl = pnlSign + Math.abs(pnl).toLocaleString();
+    
+    pnlElement.className = isPositive ? "green" : "red";
+    pnlElement.innerHTML = `${formattedPnl} (<span id="pnl-percent">${calculatedPercentage}%</span>)`;
+
     document.getElementById('setup-name').innerText = (data && data.trade_setup_name) ? data.trade_setup_name : "No Setup Yet";
     document.getElementById('setup-desc').innerText = (data && data.trade_setup_desc) ? data.trade_setup_desc : "Add your trade setups here.";
 
