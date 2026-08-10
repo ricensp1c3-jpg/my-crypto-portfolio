@@ -150,6 +150,26 @@
       font-family: monospace;
     }
 
+    /* Notice Tab */
+    .notice-box {
+      background: rgba(240, 185, 11, 0.08);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 0.68rem;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .notice-title {
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
     /* Panels */
     .panel-box {
       background: var(--bg-input);
@@ -276,7 +296,26 @@
       font-weight: 700;
     }
 
-    /* Leaderboard Table (Fixed to Top 8, Non-scrollable) */
+    /* Confluence Matrix Table */
+    .confluence-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.65rem;
+      text-align: center;
+      font-family: monospace;
+    }
+
+    .confluence-table th, .confluence-table td {
+      border: 1px solid var(--border-color);
+      padding: 3px;
+    }
+
+    .confluence-table th {
+      color: var(--text-muted);
+      background: var(--bg-card);
+    }
+
+    /* Leaderboard Table */
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
@@ -396,10 +435,10 @@
         min-width: 100%;
         height: auto;
         overflow-y: visible;
-        order: 2; /* Sidebar goes below chart on mobile */
+        order: 2;
       }
 
-      /* Chart container placed above active positions on mobile */
+      /* 1. CHART ABSOLUTE TOP ON MOBILE */
       .chart-box {
         display: block !important;
         width: 100%;
@@ -420,6 +459,11 @@
 
       .control-row {
         display: none !important;
+      }
+
+      /* 2. LOGO & ACCOUNT USERNAME MOVED BELOW CHART, ABOVE STATS ON MOBILE */
+      .brand-header {
+        order: -1;
       }
     }
   </style>
@@ -444,10 +488,20 @@
   <!-- MAIN APP CONTAINER -->
   <div class="app-container">
     
+    <!-- RIGHT CHART PANEL (Placed at top on mobile via order grid) -->
+    <div class="chart-box" id="chart-box">
+      <div class="chart-wrapper" id="chart-1-parent">
+        <div id="tradingview_desktop_1" style="height:100%;width:100%"></div>
+      </div>
+      <div class="chart-wrapper hidden" id="chart-2-parent">
+        <div id="tradingview_desktop_2" style="height:100%;width:100%"></div>
+      </div>
+    </div>
+
     <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
-      <!-- HEADER -->
+      <!-- HEADER (Logo & Account Title) -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
         <div class="brand-title-wrap">
@@ -484,6 +538,16 @@
         </div>
       </div>
 
+      <!-- NOTICE TAB -->
+      <div class="notice-box">
+        <div class="notice-title">
+          <span>⚠️ Terminal Notice</span>
+          <span>Aug 10, 2026</span>
+        </div>
+        • Premium signal currently not available.<br>
+        • Investment currently full.
+      </div>
+
       <!-- ACTIVE POSITIONS -->
       <div class="section-title">
         <span><span class="live-dot"></span>Active Scalp Positions</span>
@@ -491,6 +555,54 @@
       </div>
 
       <div id="trades-container" class="trades-list"></div>
+
+      <!-- MULTI-TIMEFRAME TECHNICAL CONFLUENCE MATRIX -->
+      <div class="panel-box">
+        <div class="section-title">
+          <span>📊 Technical Confluence Matrix</span>
+        </div>
+        <table class="confluence-table">
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>15m</th>
+              <th>1h</th>
+              <th>4h</th>
+              <th>1D</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>BTC</b></td>
+              <td class="green">BUY</td>
+              <td class="green">BUY</td>
+              <td class="green">STRONG</td>
+              <td class="green">BUY</td>
+            </tr>
+            <tr>
+              <td><b>ETH</b></td>
+              <td class="green">BUY</td>
+              <td class="red">NEUTRAL</td>
+              <td class="green">BUY</td>
+              <td class="green">STRONG</td>
+            </tr>
+            <tr>
+              <td><b>SOL</b></td>
+              <td class="red">SELL</td>
+              <td class="red">SELL</td>
+              <td class="red">NEUTRAL</td>
+              <td class="green">BUY</td>
+            </tr>
+            <tr>
+              <td><b>BNB</b></td>
+              <td class="green">BUY</td>
+              <td class="green">BUY</td>
+              <td class="green">BUY</td>
+              <td class="green">STRONG</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- REAL TRADING SIGNALS PANEL -->
       <div class="panel-box">
@@ -572,7 +684,7 @@
         </div>
       </div>
 
-      <!-- TIPS ENGINE (Moved above Log Out button) -->
+      <!-- TIPS ENGINE (Above Log Out button) -->
       <div class="panel-box" id="tips-panel">
         <div class="section-title">
           <span>💡 Scalping Engine Tips</span>
@@ -586,16 +698,6 @@
       </div>
 
       <button class="btn-logout" onclick="logout()">Log Out Terminal</button>
-    </div>
-
-    <!-- RIGHT CHART PANEL -->
-    <div class="chart-box" id="chart-box">
-      <div class="chart-wrapper" id="chart-1-parent">
-        <div id="tradingview_desktop_1" style="height:100%;width:100%"></div>
-      </div>
-      <div class="chart-wrapper hidden" id="chart-2-parent">
-        <div id="tradingview_desktop_2" style="height:100%;width:100%"></div>
-      </div>
     </div>
 
   </div>
