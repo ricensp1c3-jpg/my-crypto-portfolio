@@ -46,7 +46,7 @@
       background-color: var(--bg-main);
     }
 
-    /* Left Sidebar */
+    /* Left Sidebar (Desktop: Sidebar on left, Chart on right) */
     .sidebar {
       width: 380px;
       min-width: 380px;
@@ -58,6 +58,7 @@
       gap: 10px;
       overflow-y: auto;
       z-index: 10;
+      order: 1; /* Sidebar on Left for Desktop */
     }
 
     /* Header Row (Logo 100x100 + Account Title) */
@@ -334,7 +335,7 @@
       border-bottom: 1px dashed var(--border-color);
     }
 
-    /* Chart Container */
+    /* Chart Container (Desktop: Right Side) */
     .chart-box {
       flex-grow: 1;
       height: 100%;
@@ -342,6 +343,7 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 1px;
+      order: 2; /* Chart on Right for Desktop */
     }
 
     .chart-box.split-view {
@@ -355,7 +357,6 @@
     }
 
     .btn-logout {
-      margin-top: auto;
       background: rgba(246, 70, 93, 0.1);
       border: 1px solid var(--red);
       color: var(--red);
@@ -365,6 +366,7 @@
       font-size: 0.72rem;
       cursor: pointer;
       width: 100%;
+      margin-top: 10px;
     }
 
     /* Auth Overlay */
@@ -435,17 +437,17 @@
         min-width: 100%;
         height: auto;
         overflow-y: visible;
-        order: 2;
+        order: 1; /* Sidebar on top for mobile */
       }
 
-      /* 1. CHART ABSOLUTE TOP ON MOBILE */
+      /* Chart moved BELOW the sidebar contents on mobile */
       .chart-box {
         display: block !important;
         width: 100%;
         height: 420px !important;
         min-height: 420px;
         grid-template-columns: 1fr !important;
-        order: 1;
+        order: 2; /* Chart below sidebar on mobile */
       }
 
       .chart-wrapper {
@@ -459,11 +461,6 @@
 
       .control-row {
         display: none !important;
-      }
-
-      /* 2. LOGO & ACCOUNT USERNAME MOVED BELOW CHART, ABOVE STATS ON MOBILE */
-      .brand-header {
-        order: -1;
       }
     }
   </style>
@@ -488,16 +485,6 @@
   <!-- MAIN APP CONTAINER -->
   <div class="app-container">
     
-    <!-- RIGHT CHART PANEL (Placed at top on mobile via order grid) -->
-    <div class="chart-box" id="chart-box">
-      <div class="chart-wrapper" id="chart-1-parent">
-        <div id="tradingview_desktop_1" style="height:100%;width:100%"></div>
-      </div>
-      <div class="chart-wrapper hidden" id="chart-2-parent">
-        <div id="tradingview_desktop_2" style="height:100%;width:100%"></div>
-      </div>
-    </div>
-
     <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
@@ -544,8 +531,8 @@
           <span>⚠️ Terminal Notice</span>
           <span>Aug 10, 2026</span>
         </div>
-        • Premium signal currently not available.<br>
-        • Investment currently full.
+        • Premium signal subscription currently not available.<br>
+        • Trading slot investment currently full 25/25.
       </div>
 
       <!-- ACTIVE POSITIONS -->
@@ -684,7 +671,7 @@
         </div>
       </div>
 
-      <!-- TIPS ENGINE (Above Log Out button) -->
+      <!-- TIPS ENGINE -->
       <div class="panel-box" id="tips-panel">
         <div class="section-title">
           <span>💡 Scalping Engine Tips</span>
@@ -697,7 +684,18 @@
         </div>
       </div>
 
+      <!-- LOG OUT BUTTON AT THE LOWEST PART OF THE SITE -->
       <button class="btn-logout" onclick="logout()">Log Out Terminal</button>
+    </div>
+
+    <!-- RIGHT CHART PANEL -->
+    <div class="chart-box" id="chart-box">
+      <div class="chart-wrapper" id="chart-1-parent">
+        <div id="tradingview_desktop_1" style="height:100%;width:100%"></div>
+      </div>
+      <div class="chart-wrapper hidden" id="chart-2-parent">
+        <div id="tradingview_desktop_2" style="height:100%;width:100%"></div>
+      </div>
     </div>
 
   </div>
