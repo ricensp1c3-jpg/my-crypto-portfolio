@@ -19,7 +19,7 @@ const TICKER_POOL = [
   { symbol: "ADAUSDT", displaySymbol: "ADA/USDT" }
 ];
 
-const TIMEFRAMES = ["2h", "4h", "8h", "12h"];
+const TIMEFRAMES = ["1m", "3m", "5m"];
 let currentTrades = [];
 
 // Leaderboard: Top 10 with Highest at $27,955.00 USD and Top 10 at $15,651.00 USD
@@ -100,7 +100,6 @@ function renderTradingViewCharts() {
 }
 
 function changeLayout(layoutType) {
-  // Ignore layout toggling on mobile view
   if (window.innerWidth <= 900) return;
 
   const chartBox = document.getElementById('chart-box');
@@ -216,20 +215,24 @@ async function loadUserProfile(user) {
   initRealTrades();
 }
 
+// REALISTIC SCALPING P&L ENGINE (Random Walk micro-oscillations)
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
-  currentPercent = (Math.random() * (11 - (-14)) + (-14));
+  currentPercent = (Math.random() * (4.2 - (-2.1)) + (-2.1));
+  let scalpTrendBias = (Math.random() - 0.48) * 0.12; 
 
   function updateTicker() {
-    const minPercent = -14.0;
-    const maxPercent = 11.0;
+    // Micro-tick movement in scalping range (-8.5% to +12.5%)
+    const microStep = (Math.random() * 0.18 - 0.08) + scalpTrendBias;
+    currentPercent += microStep;
 
-    const delta = (Math.random() * 2.4 - 1.2);
-    currentPercent += delta;
-
-    if (currentPercent > maxPercent) currentPercent = maxPercent - Math.random() * 0.5;
-    if (currentPercent < minPercent) currentPercent = minPercent + Math.random() * 0.5;
+    // Soft bouncing boundary logic for organic trading curves
+    if (currentPercent > 12.5) {
+      scalpTrendBias = -0.08;
+    } else if (currentPercent < -8.5) {
+      scalpTrendBias = 0.08;
+    }
 
     const formattedPercent = currentPercent.toFixed(2);
     const calculatedPnlDollar = (investedAmount * (currentPercent / 100));
@@ -248,20 +251,23 @@ function startSmoothPnL(investedAmount) {
   }
 
   updateTicker();
-  pnlInterval = setInterval(updateTicker, 3000);
+  pnlInterval = setInterval(updateTicker, 1500); // 1.5s real-time scalp updates
 }
 
+// Generate Realistic Scalping Positions (Stable Active Status)
 function generateTradeSetup(tickerObj) {
+  const isLong = Math.random() > 0.45;
   return {
     symbol: tickerObj.symbol,
     displaySymbol: tickerObj.displaySymbol,
-    direction: Math.random() > 0.45 ? "LONG" : "SHORT",
-    leverage: getRandomInt(9, 105),
+    direction: isLong ? "LONG" : "SHORT",
+    leverage: getRandomInt(10, 50),
     timeframe: TIMEFRAMES[Math.floor(Math.random() * TIMEFRAMES.length)],
-    status: Math.random() > 0.15 ? "ACTIVE" : "INACTIVE",
+    status: "ACTIVE", // Permanently kept ACTIVE without sporadic switching
     entryPrice: 0,
     currentPrice: 0,
-    pnlPercent: 0
+    pnlPercent: (Math.random() * 3.5 - 1.2), // Initial micro P&L
+    trendMomentum: (Math.random() - 0.48) * 0.0003 // Order book micro-momentum
   };
 }
 
@@ -283,13 +289,17 @@ function connectBinanceWebSocket() {
 
     const trade = currentTrades.find(t => t.symbol === data.s);
     if (trade) {
-      if (trade.entryPrice === 0) trade.entryPrice = livePrice;
-      trade.currentPrice = livePrice;
-
-      if (trade.entryPrice > 0 && trade.status === "ACTIVE") {
+      if (trade.entryPrice === 0) {
+        trade.entryPrice = livePrice;
+        trade.currentPrice = livePrice;
+      } else {
+        // Scalp Micro-Ticking Pattern: Smoothly follows websocket feed without sudden spikes
+        trade.currentPrice = livePrice;
         const priceDiffRatio = (trade.currentPrice - trade.entryPrice) / trade.entryPrice;
-        const multiplier = trade.direction === "LONG" ? 1 : -1;
-        trade.pnlPercent = priceDiffRatio * trade.leverage * 100 * multiplier;
+        const directionMultiplier = trade.direction === "LONG" ? 1 : -1;
+        
+        // Exact Scalp PnL formula = Price Delta * Leverage * Direction
+        trade.pnlPercent = priceDiffRatio * trade.leverage * 100 * directionMultiplier;
       }
 
       renderTrades();
@@ -305,10 +315,8 @@ function renderTrades() {
     const isPos = trade.pnlPercent >= 0;
     const badgeDirection = trade.direction === "LONG" ? "badge-long" : "badge-short";
     
-    // Position status complete word badge (ACTIVE / INACTIVE)
-    const statusBadge = trade.status === "ACTIVE" 
-      ? `<span class="badge badge-active">ACTIVE</span>` 
-      : `<span class="badge badge-inactive">INACTIVE</span>`;
+    // Stable "ACTIVE" badge display
+    const statusBadge = `<span class="badge badge-active">ACTIVE</span>`;
 
     let formattedPrice = "Syncing...";
     if (trade.currentPrice > 0) {
