@@ -1,4 +1,4 @@
-// 1. Supabase Initialization
+// Supabase Configuration
 const SUPABASE_URL = "https://obdkqdfalmqnebrmtzwh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZGtxZGZhbG1xbmVicm10endoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMjc3NjksImV4cCI6MjEwMTkwMzc2OX0.0-cSxWTrAyNMrQQtaEaXlZPzyP_0nZzad0738-DRbDo"; 
 
@@ -9,6 +9,7 @@ let isSignUpMode = false;
 let pnlInterval = null;
 let currentPercent = 0.0;
 let binanceSocket = null;
+let currentTheme = "dark";
 
 const TICKER_POOL = [
   { symbol: "BTCUSDT", displaySymbol: "BTC/USDT" },
@@ -22,7 +23,6 @@ const TICKER_POOL = [
 const TIMEFRAMES = ["2h", "4h", "8h", "12h"];
 let currentTrades = [];
 
-// Top 20 Competition Traders Leaderboard Data ($77,000 to $14,119)
 const LEADERBOARD_DATA = [
   { rank: 1, name: "CryptoWhale_X", pnl: 77000 },
   { rank: 2, name: "AlphaTrader99", pnl: 71400 },
@@ -51,13 +51,9 @@ function getRandomInt(min, max) {
 }
 
 function formatCurrency(amount) {
-  return "$" + Number(amount).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+  return "$" + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// 2. DOM Loaded Event
 document.addEventListener('DOMContentLoaded', async () => {
   const toggleBtn = document.getElementById('auth-toggle');
   const authBtn = document.getElementById('auth-btn');
@@ -65,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (toggleBtn) toggleBtn.addEventListener('click', toggleAuthMode);
   if (authBtn) authBtn.addEventListener('click', handleAuth);
 
-  initTradingViewCharts();
+  renderTradingViewCharts(currentTheme);
   renderLeaderboard();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -78,49 +74,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// 3. TradingView Chart Engine
-function initTradingViewCharts() {
-  const renderCharts = () => {
-    if (typeof TradingView !== "undefined") {
-      new TradingView.widget({
-        "autosize": true,
-        "symbol": "BINANCE:BTCUSDT",
-        "interval": "15",
-        "timezone": "Etc/UTC",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "toolbar_bg": "#181a20",
-        "container_id": "tradingview_desktop_1"
-      });
+// Explicit Widget Re-Mount Engine to Fix White Screens
+function renderTradingViewCharts(themeName) {
+  const tvTheme = (themeName === "light") ? "light" : "dark";
+  const bgColor = (themeName === "light") ? "#FFFFFF" : (themeName === "cyberpunk" ? "#0D0E24" : "#181A20");
 
-      new TradingView.widget({
-        "autosize": true,
-        "symbol": "BINANCE:ETHUSDT",
-        "interval": "15",
-        "timezone": "Etc/UTC",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "toolbar_bg": "#181a20",
-        "container_id": "tradingview_desktop_2"
-      });
-    } else {
-      setTimeout(renderCharts, 250);
-    }
-  };
+  const parent1 = document.getElementById('chart-1-parent');
+  const parent2 = document.getElementById('chart-2-parent');
 
-  renderCharts();
+  if (parent1) parent1.innerHTML = '<div id="tradingview_desktop_1" style="height:100%;width:100%"></div>';
+  if (parent2) parent2.innerHTML = '<div id="tradingview_desktop_2" style="height:100%;width:100%"></div>';
+
+  if (typeof TradingView !== "undefined") {
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": "BINANCE:BTCUSDT",
+      "interval": "15",
+      "timezone": "Etc/UTC",
+      "theme": tvTheme,
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": bgColor,
+      "container_id": "tradingview_desktop_1"
+    });
+
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": "BINANCE:ETHUSDT",
+      "interval": "15",
+      "timezone": "Etc/UTC",
+      "theme": tvTheme,
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": bgColor,
+      "container_id": "tradingview_desktop_2"
+    });
+  }
 }
 
-// 4. Customization Toggles
 function changeTheme(themeName) {
+  currentTheme = themeName;
   document.body.setAttribute('data-theme', themeName);
+  renderTradingViewCharts(themeName);
 }
 
 function changeLayout(layoutType) {
   const chartBox = document.getElementById('chart-box');
-  const chart2 = document.getElementById('chart-2-container');
+  const chart2 = document.getElementById('chart-2-parent');
 
   if (layoutType === 'split') {
     chartBox.classList.add('split-view');
@@ -136,7 +136,6 @@ function toggleBox(id) {
   el.classList.toggle('hidden');
 }
 
-// 5. Render Leaderboard
 function renderLeaderboard() {
   const tbody = document.getElementById('leaderboard-body');
   if (!tbody) return;
@@ -150,7 +149,6 @@ function renderLeaderboard() {
   `).join('');
 }
 
-// 6. Toggle Auth Mode
 function toggleAuthMode() {
   isSignUpMode = !isSignUpMode;
   
@@ -161,7 +159,7 @@ function toggleAuthMode() {
   const usernameInput = document.getElementById('auth-username');
 
   if (isSignUpMode) {
-    title.innerText = "Register Account";
+    title.innerText = "Register";
     sub.innerText = "Create terminal credentials";
     btn.innerText = "Sign Up";
     toggle.innerText = "Back to Sign In";
@@ -175,29 +173,25 @@ function toggleAuthMode() {
   }
 }
 
-// 7. Auth Action Handler
 async function handleAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value.trim();
   const username = document.getElementById('auth-username').value.trim();
 
-  if (!email || !password) {
-    alert("Please enter email and password.");
-    return;
-  }
+  if (!email || !password) return alert("Enter email and password.");
 
   if (isSignUpMode) {
     const { data, error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) return alert("Error: " + error.message);
+    if (error) return alert(error.message);
 
     if (data.user) {
       await createUserProfileRow(data.user.id, username || email.split('@')[0]);
-      alert("Registration successful!");
+      alert("Account registered!");
       toggleAuthMode();
     }
   } else {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) return alert("Login Error: " + error.message);
+    if (error) return alert(error.message);
 
     if (data.session) {
       document.getElementById('auth-modal').classList.add('hidden');
@@ -207,40 +201,32 @@ async function handleAuth() {
 }
 
 async function createUserProfileRow(userId, username) {
-  const { error } = await supabaseClient
+  await supabaseClient
     .from('user_profiles')
     .upsert([{ id: userId, username: username, invested_amount: 1000, pnl_amount: 0, pnl_percentage: 0 }], { onConflict: 'id' });
-  if (error) console.error("Profile creation error:", error.message);
 }
 
-// 8. Profile Loader
 async function loadUserProfile(user) {
-  try {
-    let { data } = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
+  let { data } = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
 
-    if (!data) {
-      const fallbackName = user.email ? user.email.split('@')[0] : "Trader";
-      await createUserProfileRow(user.id, fallbackName);
-      const res = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
-      data = res.data;
-    }
-
-    const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
-    
-    document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'s Trading Account`;
-    
-    const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
-    document.getElementById('invested').innerText = formatCurrency(invested);
-
-    startSmoothPnL(invested);
-    initRealTrades();
-
-  } catch (err) {
-    console.error("Execution error:", err);
+  if (!data) {
+    const fallbackName = user.email ? user.email.split('@')[0] : "Trader";
+    await createUserProfileRow(user.id, fallbackName);
+    const res = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
+    data = res.data;
   }
+
+  const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
+  
+  document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'S TRADING ACCOUNT`;
+  
+  const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
+  document.getElementById('invested').innerText = formatCurrency(invested);
+
+  startSmoothPnL(invested);
+  initRealTrades();
 }
 
-// 9. Smooth Overall P&L Generator
 function startSmoothPnL(investedAmount) {
   if (pnlInterval) clearInterval(pnlInterval);
 
@@ -269,27 +255,21 @@ function startSmoothPnL(investedAmount) {
     });
 
     pnlElement.className = `stat-value ${isPositive ? 'green' : 'red'}`;
-    pnlElement.innerHTML = `${formattedDollar} <span style="font-size: 0.7rem;">(${isPositive ? '+' : ''}${formattedPercent}%)</span>`;
+    pnlElement.innerHTML = `${formattedDollar} <span style="font-size: 0.65rem;">(${isPositive ? '+' : ''}${formattedPercent}%)</span>`;
   }
 
   updateTicker();
   pnlInterval = setInterval(updateTicker, 3000);
 }
 
-// 10. Live WebSocket Positions Engine
 function generateTradeSetup(tickerObj) {
-  const isLong = Math.random() > 0.45;
-  const leverage = getRandomInt(9, 105);
-  const tf = TIMEFRAMES[Math.floor(Math.random() * TIMEFRAMES.length)];
-  const isActive = Math.random() > 0.15;
-
   return {
     symbol: tickerObj.symbol,
     displaySymbol: tickerObj.displaySymbol,
-    direction: isLong ? "LONG" : "SHORT",
-    leverage: leverage,
-    timeframe: tf,
-    status: isActive ? "ACTIVE" : "INACTIVE",
+    direction: Math.random() > 0.45 ? "LONG" : "SHORT",
+    leverage: getRandomInt(9, 105),
+    timeframe: TIMEFRAMES[Math.floor(Math.random() * TIMEFRAMES.length)],
+    status: Math.random() > 0.15 ? "ACTIVE" : "INACTIVE",
     entryPrice: 0,
     currentPrice: 0,
     pnlPercent: 0
@@ -298,9 +278,7 @@ function generateTradeSetup(tickerObj) {
 
 function initRealTrades() {
   const shuffled = [...TICKER_POOL].sort(() => 0.5 - Math.random());
-  const selectedTickers = shuffled.slice(0, 3);
-
-  currentTrades = selectedTickers.map(t => generateTradeSetup(t));
+  currentTrades = shuffled.slice(0, 3).map(t => generateTradeSetup(t));
   connectBinanceWebSocket();
 }
 
@@ -308,16 +286,13 @@ function connectBinanceWebSocket() {
   if (binanceSocket) binanceSocket.close();
 
   const streams = currentTrades.map(t => `${t.symbol.toLowerCase()}@ticker`).join('/');
-  const wsUrl = `wss://stream.binance.com:9443/ws/${streams}`;
-
-  binanceSocket = new WebSocket(wsUrl);
+  binanceSocket = new WebSocket(`wss://stream.binance.com:9443/ws/${streams}`);
 
   binanceSocket.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    const symbol = data.s;
     const livePrice = parseFloat(data.c);
 
-    const trade = currentTrades.find(t => t.symbol === symbol);
+    const trade = currentTrades.find(t => t.symbol === data.s);
     if (trade) {
       if (trade.entryPrice === 0) trade.entryPrice = livePrice;
       trade.currentPrice = livePrice;
@@ -337,9 +312,7 @@ function renderTrades() {
   const container = document.getElementById('trades-container');
   if (!container) return;
 
-  container.innerHTML = "";
-
-  currentTrades.forEach(trade => {
+  container.innerHTML = currentTrades.map(trade => {
     const isPos = trade.pnlPercent >= 0;
     const badgeDirection = trade.direction === "LONG" ? "badge-long" : "badge-short";
     const statusBadge = trade.status === "ACTIVE" 
@@ -353,7 +326,7 @@ function renderTrades() {
         : "$" + trade.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    const html = `
+    return `
       <div class="trade-card">
         <div class="trade-row-top">
           <span class="symbol-name">${trade.displaySymbol} <span class="badge ${badgeDirection}">${trade.direction} ${trade.leverage}x</span></span>
@@ -365,12 +338,9 @@ function renderTrades() {
         </div>
       </div>
     `;
-
-    container.innerHTML += html;
-  });
+  }).join('');
 }
 
-// 11. Logout
 async function logout() {
   if (pnlInterval) clearInterval(pnlInterval);
   if (binanceSocket) binanceSocket.close();

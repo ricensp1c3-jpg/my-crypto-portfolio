@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%234FC3F7'/><path d='M20,55 Q50,25 80,55 Q50,75 20,55 Z' fill='%2390CAF9'/><path d='M35,55 Q50,35 65,55' fill='%23FFFFFF'/><polygon points='45,20 60,38 35,38' fill='%2364B5F6'/><circle cx='62' cy='45' r='5' fill='%23000000'/><circle cx='64' cy='43' r='2' fill='%23FFFFFF'/><path d='M65,58 Q72,62 65,66' stroke='%23FF8A80' stroke-width='3' fill='none'/></svg>" type="image/svg+xml">
+  <!-- FAVICON USING YOUR IMAGE -->
+  <link rel="icon" href="images/tradeatravel.jpg" type="image/jpeg">
 
   <title>TradEaTravel Pro Terminal</title>
 
@@ -13,7 +14,7 @@
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
   <style>
-    /* Professional Dark Theme (Default) */
+    /* Dark Theme (Default) */
     :root[data-theme="dark"] {
       --bg-main: #0B0E11;
       --bg-card: #181A20;
@@ -28,11 +29,11 @@
       --accent: #F0B90B;
     }
 
-    /* Professional Slate Light Theme */
+    /* Light Theme */
     :root[data-theme="light"] {
-      --bg-main: #EAECEF;
+      --bg-main: #F0F3F8;
       --bg-card: #FFFFFF;
-      --bg-input: #F0F3F8;
+      --bg-input: #EAECEF;
       --border-color: #D0D5DD;
       --text-main: #1E2329;
       --text-muted: #5E6673;
@@ -43,7 +44,7 @@
       --accent: #D9A300;
     }
 
-    /* Cyberpunk Terminal Theme */
+    /* Cyberpunk Theme */
     :root[data-theme="cyberpunk"] {
       --bg-main: #05050D;
       --bg-card: #0D0E24;
@@ -58,27 +59,27 @@
       --accent: #FFE600;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-    body {
-      background-color: var(--bg-main);
+    html, body {
+      background-color: var(--bg-main) !important;
       color: var(--text-main);
       height: 100vh;
       width: 100vw;
       overflow: hidden;
-      transition: background-color 0.2s, color 0.2s;
     }
 
     .app-container {
       display: flex;
       height: 100vh;
       width: 100vw;
+      background-color: var(--bg-main);
     }
 
-    /* Minimalist Terminal Sidebar */
+    /* Left Sidebar */
     .sidebar {
-      width: 360px;
-      min-width: 360px;
+      width: 380px;
+      min-width: 380px;
       background: var(--bg-card);
       border-right: 1px solid var(--border-color);
       display: flex;
@@ -89,32 +90,56 @@
       z-index: 10;
     }
 
-    /* Header */
+    /* Header Row (Logo 100x100 + Title + Theme Switcher Right) */
     .brand-header {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-bottom: 8px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--border-color);
     }
 
+    /* Exactly 100px by 100px Logo */
     .site-logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
+      width: 100px !important;
+      height: 100px !important;
+      min-width: 100px !important;
+      min-height: 100px !important;
+      border-radius: 6px;
       object-fit: cover;
+      border: 1px solid var(--border-color);
     }
 
-    .brand-title {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: var(--text-main);
-      text-transform: uppercase;
+    .brand-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       flex-grow: 1;
     }
 
-    /* Controls Switchers */
+    .brand-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: var(--text-main);
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .theme-select-inline {
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      width: 100%;
+    }
+
+    /* Layout Controls */
     .control-row {
       display: flex;
       gap: 6px;
@@ -133,7 +158,7 @@
       outline: none;
     }
 
-    /* Stat Cards */
+    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -156,12 +181,12 @@
     }
 
     .stat-value {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 700;
       font-family: monospace;
     }
 
-    /* Collapsible Boxes */
+    /* Panels */
     .panel-box {
       background: var(--bg-input);
       border: 1px solid var(--border-color);
@@ -174,7 +199,6 @@
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 700;
-      letter-spacing: 0.5px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -191,7 +215,7 @@
       box-shadow: 0 0 6px var(--green);
     }
 
-    /* Active Trade Cards */
+    /* Trades Cards */
     .trades-list {
       display: flex;
       flex-direction: column;
@@ -223,7 +247,7 @@
     .green { color: var(--green); }
     .red { color: var(--red); }
 
-    /* Heatmap Tile Component */
+    /* Heatmap Grid */
     .heatmap-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -239,7 +263,7 @@
       font-weight: 700;
     }
 
-    /* News & Sentiment Feed */
+    /* Feed & Leaderboard */
     .feed-list {
       display: flex;
       flex-direction: column;
@@ -254,7 +278,6 @@
       padding-bottom: 4px;
     }
 
-    /* Leaderboard Table */
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
@@ -273,11 +296,11 @@
       border-bottom: 1px dashed var(--border-color);
     }
 
-    /* Charts Container */
+    /* Right Chart Panel Fixes */
     .chart-box {
       flex-grow: 1;
       height: 100%;
-      background: var(--bg-main);
+      background: var(--bg-main) !important;
       display: grid;
       grid-template-columns: 1fr;
       gap: 1px;
@@ -285,6 +308,12 @@
 
     .chart-box.split-view {
       grid-template-columns: 1fr 1fr;
+    }
+
+    .chart-wrapper {
+      height: 100%;
+      width: 100%;
+      background: var(--bg-main) !important;
     }
 
     .btn-logout {
@@ -300,11 +329,11 @@
       width: 100%;
     }
 
-    /* Auth Modal Overlay */
+    /* Auth Overlay */
     .auth-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(11, 14, 17, 0.92);
+      background: rgba(11, 14, 17, 0.94);
       backdrop-filter: blur(6px);
       display: flex;
       justify-content: center;
@@ -362,7 +391,7 @@
   <div id="auth-modal" class="auth-overlay">
     <div class="auth-card">
       <h3 id="auth-title" style="color: var(--text-main); margin-bottom: 2px;">Sign In</h3>
-      <p style="color: var(--text-muted); font-size: 0.72rem; margin-bottom: 12px;" id="auth-sub">Access professional terminal</p>
+      <p style="color: var(--text-muted); font-size: 0.72rem; margin-bottom: 12px;" id="auth-sub">Access terminal workspace</p>
       
       <input type="email" id="auth-email" placeholder="Email">
       <input type="password" id="auth-password" placeholder="Password">
@@ -373,32 +402,34 @@
     </div>
   </div>
 
-  <!-- MAIN TERMINAL UI -->
+  <!-- MAIN APP CONTAINER -->
   <div class="app-container">
     
-    <!-- LEFT PANEL -->
+    <!-- LEFT SIDEBAR -->
     <div class="sidebar">
       
+      <!-- HEADER: 100px Logo + Account Title + Theme Dropdown to the Right -->
       <div class="brand-header">
         <img src="images/tradeatravel.jpg" alt="Logo" class="site-logo">
-        <span class="brand-title" id="account-title">Terminal Account</span>
+        <div class="brand-title-wrap">
+          <span class="brand-title" id="account-title">TRADING ACCOUNT</span>
+          <select id="theme-select" class="theme-select-inline" onchange="changeTheme(this.value)">
+            <option value="dark">🎨 Dark Theme</option>
+            <option value="light">☀️ Light Theme</option>
+            <option value="cyberpunk">⚡ Cyberpunk</option>
+          </select>
+        </div>
       </div>
 
-      <!-- THEME & LAYOUT ENGINE SWITCHERS -->
+      <!-- VIEW LAYOUT ENGINE SWITCHER -->
       <div class="control-row">
-        <select id="theme-select" onchange="changeTheme(this.value)">
-          <option value="dark">🎨 Theme: Dark</option>
-          <option value="light">☀️ Theme: Light</option>
-          <option value="cyberpunk">⚡ Theme: Cyberpunk</option>
-        </select>
-
         <select id="layout-select" onchange="changeLayout(this.value)">
-          <option value="single">📺 Single View</option>
-          <option value="split">📺 Split View (2x)</option>
+          <option value="single">📺 Single Chart View</option>
+          <option value="split">📺 Split Multi-Chart (2x)</option>
         </select>
       </div>
 
-      <!-- PORTFOLIO METRICS -->
+      <!-- METRICS -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Invested</div>
@@ -410,16 +441,16 @@
         </div>
       </div>
 
-      <!-- BEGINNER RISK TIPS -->
+      <!-- BEGINNER TIPS -->
       <div class="panel-box">
         <div class="section-title">
           <span>💡 Beginner Risk Tips</span>
           <span style="cursor:pointer;" onclick="toggleBox('risk-content')">▼</span>
         </div>
         <div id="risk-content" style="font-size: 0.68rem; color: var(--text-muted); line-height: 1.4;">
-          • <b>1% Rule:</b> Never risk over 1% per position.<br>
+          • <b>1% Rule:</b> Risk max 1% per position.<br>
           • <b>Stop Loss:</b> Protect equity before anticipating profits.<br>
-          • <b>Leverage Alert:</b> 20x+ leverage dramatically elevates liquidation risks.
+          • <b>Leverage Warning:</b> High leverage amplifies volatility & liquidation risks.
         </div>
       </div>
 
@@ -431,7 +462,7 @@
 
       <div id="trades-container" class="trades-list"></div>
 
-      <!-- HEATMAP & LIQUIDATIONS -->
+      <!-- HEATMAP & LIQUIDATION -->
       <div class="panel-box">
         <div class="section-title">
           <span>🔥 Heatmap & Liquidations</span>
@@ -465,7 +496,7 @@
         </div>
       </div>
 
-      <!-- WHALE TRACKER & LEVEL 2 DATA -->
+      <!-- WHALE TRACKER & L2 -->
       <div class="panel-box">
         <div class="section-title">
           <span>🐋 Whale Tracker & L2 Flow</span>
@@ -475,7 +506,7 @@
           <span class="green">BID 68,410.00 (28.9 BTC)</span>
         </div>
         <div style="font-size: 0.62rem; color: var(--accent); margin-top: 4px;">
-          🚨 Alert: 1,200 BTC transferred to Binance Exchange
+          🚨 Alert: 1,200 BTC transferred to Binance
         </div>
       </div>
 
@@ -490,7 +521,7 @@
         </div>
       </div>
 
-      <!-- TOP TRADERS LEADERBOARD -->
+      <!-- COMPETITION LEADERBOARD -->
       <div class="panel-box">
         <div class="section-title">
           <span>🏆 Top Traders Tournament</span>
@@ -508,12 +539,12 @@
       <button class="btn-logout" onclick="logout()">Log Out Terminal</button>
     </div>
 
-    <!-- RIGHT CHART CONTAINER -->
+    <!-- RIGHT CHART PANEL -->
     <div class="chart-box" id="chart-box">
-      <div style="height:100%;width:100%" id="chart-1-parent">
+      <div class="chart-wrapper" id="chart-1-parent">
         <div id="tradingview_desktop_1" style="height:100%;width:100%"></div>
       </div>
-      <div class="hidden" id="chart-2-parent" style="height:100%;width:100%">
+      <div class="chart-wrapper hidden" id="chart-2-parent">
         <div id="tradingview_desktop_2" style="height:100%;width:100%"></div>
       </div>
     </div>
