@@ -246,11 +246,18 @@ async function handleAuth() {
 
   if (isSignUpMode) {
     const { data, error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) return alert(error.message);
+    if (error) {
+      if (error.status === 429) {
+        alert("Email rate limit exceeded. Please wait a moment before trying to sign up again.");
+      } else {
+        alert(error.message);
+      }
+      return;
+    }
 
     if (data.user) {
       await createUserProfileRow(data.user.id, username || email.split('@')[0]);
-      alert("Account registered!");
+      alert("Account registered successfully!");
       toggleAuthMode();
     }
   } else {
