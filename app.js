@@ -22,7 +22,7 @@ const TICKER_POOL = [
 const TIMEFRAMES = ["2h", "4h", "8h", "12h"];
 let currentTrades = [];
 
-// Leaderboard updated with Season 5 winners and exact odd amount figures
+// Leaderboard: Season 5 Trading Gainers with precise realistic gains
 const LEADERBOARD_DATA = [
   { rank: 1, name: "CryptoWhale_X", pnl: 76592.00 },
   { rank: 2, name: "AlphaTrader99", pnl: 71418.50 },
@@ -209,10 +209,12 @@ async function loadUserProfile(user) {
 
   const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
   
-  // Set account name and replace BINANCE PRO TERMINAL title with User's Generated ID
+  // Set Account Name
   document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'S TRADING ACCOUNT`;
-  const shortId = user.id ? user.id.substring(0, 8).toUpperCase() : "REG-88219";
-  document.getElementById('account-id').innerText = `ID: #${shortId}`;
+  
+  // Format and set UID based on registered user.id
+  const uidString = user.id ? user.id.replace(/-/g, '').substring(0, 8).toUpperCase() : "88219042";
+  document.getElementById('account-uid').innerText = `UID# ${uidString}`;
   
   const invested = Number(data && data.invested_amount > 0 ? data.invested_amount : 1000);
   document.getElementById('invested').innerText = formatCurrency(invested);
