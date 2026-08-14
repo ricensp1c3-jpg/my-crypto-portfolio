@@ -256,7 +256,14 @@ async function handleAuth() {
     }
 
     if (data.user) {
-      await createUserProfileRow(data.user.id, username || email.split('@')[0]);
+      // Generate a unique initial set of gain logs array for this specific user
+      const initialLogs = [
+        { date: "2026-06-10", log: "+$120.00 Scalp Target Hit" },
+        { date: "2026-06-11", log: "+$85.50 Resistance Bounce" },
+        { date: "2026-06-12", log: "+$210.00 Breakout Session" }
+      ];
+
+      await createUserProfileRow(data.user.id, username || email.split('@')[0], initialLogs);
       alert("Account registered successfully!");
       toggleAuthMode();
     }
@@ -271,7 +278,7 @@ async function handleAuth() {
   }
 }
 
-async function createUserProfileRow(userId, username) {
+async function createUserProfileRow(userId, username, logsArray) {
   await supabaseClient
     .from('user_profiles')
     .upsert([{ 
@@ -280,8 +287,7 @@ async function createUserProfileRow(userId, username) {
       invested_amount: 0, 
       pnl_amount: 0, 
       pnl_percentage: 0,
-      gain_logs: "No recent gains logged",
-      log_date: new Date().toISOString().split('T')[0]
+      gain_logs: logsArray
     }], { onConflict: 'id' });
 }
 
@@ -290,7 +296,10 @@ async function loadUserProfile(user) {
 
   if (!data) {
     const fallbackName = user.email ? user.email.split('@')[0] : "Trader";
-    await createUserProfileRow(user.id, fallbackName);
+    const defaultLogs = [
+      { date: "2026-06-12", log: "+$50.00 Initial Setup Fill" }
+    ];
+    await createUserProfileRow(user.id, fallbackName, defaultLogs);
     const res = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
     data = res.data;
   }
@@ -310,33 +319,56 @@ async function loadUserProfile(user) {
   const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 0;
   document.getElementById('invested').innerText = formatCurrency(invested);
 
-  // RENDER GAIN LOGS & DATE ABOVE TERMINAL NOTICE
-  renderGainLogsAndDate(data);
+  // RENDER GAIN LOGS LIST BELOW TERMINAL NOTICE
+  renderGainLogsList(data);
 
   startSmoothPnL(invested);
   initRealTrades();
 }
 
-function renderGainLogsAndDate(data) {
-  let bannerContainer = document.getElementById('gain-logs-banner');
+function renderGainLogsList(data) {
+  let listContainer = document.getElementById('gain-logs-list-container');
   
-  // If the banner element doesn't exist in HTML yet, create and insert it right above the terminal notice
-  if (!bannerContainer) {
-    bannerContainer = document.createElement('div');
-    bannerContainer.id = 'gain-logs-banner';
-    bannerContainer.style.cssText = "background: rgba(16, 185, 129, 0.1); border: 1px solid var(--green); padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; color: var(--text-main);";
+  if (!listContainer) {
+    listContainer = document.createElement('div');
+    listContainer.id = 'gain-logs-list-container';
+    listContainer.style.cssText = "background: rgba(18, 20, 24, 0.8); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.72rem; color: var(--text-main);";
     
-    // Find the terminal notice element or primary container to prepend above it
-    const noticeElement = document.querySelector('.terminal-notice') || document.querySelector('.main-content') || document.body;
-    noticeElement.parentNode.insertBefore(bannerContainer, noticeElement);
+    // Position it directly below the terminal notice element
+    const noticeElement = document.querySelector('.terminal-notice');
+    if (noticeElement && noticeElement.parentNode) {
+      noticeElement.parentNode.insertBefore(listContainer, noticeElement.nextSibling);
+    } else {
+      const mainContent = document.querySelector('.main-content') || document.body;
+      mainContent.prepend(listContainer);
+    }
   }
 
-  const gainLogs = (data && data.gain_logs) ? data.gain_logs : "+$0.00 Daily PnL Target Achieved";
-  const logDate = (data && data.log_date) ? data.log_date : new Date().toISOString().split('T')[0];
+  let logs = [];
+  try {
+    if (data && data.gain_logs) {
+      logs = typeof data.gain_logs === 'string' ? JSON.parse(data.gain_logs) : data.gain_logs;
+    }
+  } catch (e) {
+    logs = [{ date: "Recent", log: String(data.gain_logs) }];
+  }
 
-  bannerContainer.innerHTML = `
-    <span>📊 <b>Gain Log:</b> ${gainLogs}</span>
-    <span style="font-family: monospace; color: var(--text-muted);">📅 Date: ${logDate}</span>
+  if (!Array.isArray(logs) || logs.length === 0) {
+    logs = [{ date: new Date().toISOString().split('T')[0], log: "No logs recorded yet" }];
+  }
+
+  listContainer.innerHTML = `
+    <div style="font-weight: 600; margin-bottom: 6px; color: var(--green); display: flex; align-items: center; gap: 6px;">
+      <span>📋</span> ACCOUNT GAIN LOGS LIST
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px; max-height: 90px; overflow-y: auto;">
+      ${logs.map(item => `
+        <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-family: monospace;">
+          <span style="color: var(--text-muted);">📅 ${item.date || 'N/A'}</span>
+          <span style="color: var(--green); font-weight: 600;">${item.log || item}</span>
+        </div>
+      `).join('')}
+    </div>
   `;
 }
 
@@ -463,7 +495,7 @@ function renderTrades() {
     let formattedPrice = "Syncing...";
     if (trade.currentPrice > 0) {
       formattedPrice = trade.currentPrice < 1 
-        ? "$" + trade.currentPrice.toFixed(4) 
+        ? "$" + trade.currentPrice.tailwindtoFixed(4) 
         : "$" + trade.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
