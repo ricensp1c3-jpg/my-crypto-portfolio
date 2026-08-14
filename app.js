@@ -173,6 +173,7 @@ function renderTradingViewCharts() {
   if (parent2) parent2.innerHTML = '<div id="tradingview_desktop_2" style="height:100%;width:100%"></div>';
 
   if (typeof TradingView !== "undefined") {
+    // Primary Chart Widget (Unlocked for all assets: Stocks, Crypto, Forex, etc.)
     new TradingView.widget({
       "autosize": true,
       "symbol": "BINANCE:BTCUSDT",
@@ -182,9 +183,12 @@ function renderTradingViewCharts() {
       "style": "1",
       "locale": "en",
       "toolbar_bg": "#181A20",
+      "enable_publishing": false,
+      "allow_symbol_change": true, // Enables searching and switching to Stocks, Crypto, Forex, etc.
       "container_id": "tradingview_desktop_1"
     });
 
+    // Secondary Chart Widget (For Split View)
     new TradingView.widget({
       "autosize": true,
       "symbol": "BINANCE:ETHUSDT",
@@ -194,6 +198,8 @@ function renderTradingViewCharts() {
       "style": "1",
       "locale": "en",
       "toolbar_bg": "#181A20",
+      "enable_publishing": false,
+      "allow_symbol_change": true, // Enables searching and switching to Stocks, Crypto, Forex, etc.
       "container_id": "tradingview_desktop_2"
     });
   }
