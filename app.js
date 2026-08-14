@@ -256,14 +256,7 @@ async function handleAuth() {
     }
 
     if (data.user) {
-      // Generate a unique initial set of gain logs array for this specific user
-      const initialLogs = [
-        { date: "2026-06-10", log: "+$120.00 Scalp Target Hit" },
-        { date: "2026-06-11", log: "+$85.50 Resistance Bounce" },
-        { date: "2026-06-12", log: "+$210.00 Breakout Session" }
-      ];
-
-      await createUserProfileRow(data.user.id, username || email.split('@')[0], initialLogs);
+      await createUserProfileRow(data.user.id, username || email.split('@')[0]);
       alert("Account registered successfully!");
       toggleAuthMode();
     }
@@ -278,7 +271,7 @@ async function handleAuth() {
   }
 }
 
-async function createUserProfileRow(userId, username, logsArray) {
+async function createUserProfileRow(userId, username) {
   await supabaseClient
     .from('user_profiles')
     .upsert([{ 
@@ -286,8 +279,7 @@ async function createUserProfileRow(userId, username, logsArray) {
       username: username, 
       invested_amount: 0, 
       pnl_amount: 0, 
-      pnl_percentage: 0,
-      gain_logs: logsArray
+      pnl_percentage: 0
     }], { onConflict: 'id' });
 }
 
@@ -296,10 +288,7 @@ async function loadUserProfile(user) {
 
   if (!data) {
     const fallbackName = user.email ? user.email.split('@')[0] : "Trader";
-    const defaultLogs = [
-      { date: "2026-06-12", log: "+$50.00 Initial Setup Fill" }
-    ];
-    await createUserProfileRow(user.id, fallbackName, defaultLogs);
+    await createUserProfileRow(user.id, fallbackName);
     const res = await supabaseClient.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
     data = res.data;
   }
@@ -319,103 +308,30 @@ async function loadUserProfile(user) {
   const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 0;
   document.getElementById('invested').innerText = formatCurrency(invested);
 
-  // RENDER GAIN LOGS LIST BELOW TERMINAL NOTICE
-  renderGainLogsList(data);
+  // FIX P&L DIRECTLY FROM SUPABASE PNL_AMOUNT COLUMN
+  const fixedPnlAmount = (data && data.pnl_amount !== null && data.pnl_amount !== undefined) ? Number(data.pnl_amount) : 0;
+  const fixedPnlPercent = (data && data.pnl_percentage !== null && data.pnl_percentage !== undefined) ? Number(data.pnl_percentage) : 0;
+  
+  renderFixedPnL(fixedPnlAmount, fixedPnlPercent);
 
-  startSmoothPnL(invested);
   initRealTrades();
 }
 
-function renderGainLogsList(data) {
-  let listContainer = document.getElementById('gain-logs-list-container');
+// RENDER FIXED P&L FROM SUPABASE DATABASE VALUES
+function renderFixedPnL(pnlAmount, pnlPercent) {
+  const pnlElement = document.getElementById('pnl-card');
+  if (!pnlElement) return;
+
+  const isPositive = pnlAmount >= 0;
+  const pnlSign = isPositive ? "+$" : "-$";
   
-  if (!listContainer) {
-    listContainer = document.createElement('div');
-    listContainer.id = 'gain-logs-list-container';
-    listContainer.style.cssText = "background: rgba(18, 20, 24, 0.8); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.72rem; color: var(--text-main);";
-    
-    // Position it directly below the terminal notice element
-    const noticeElement = document.querySelector('.terminal-notice');
-    if (noticeElement && noticeElement.parentNode) {
-      noticeElement.parentNode.insertBefore(listContainer, noticeElement.nextSibling);
-    } else {
-      const mainContent = document.querySelector('.main-content') || document.body;
-      mainContent.prepend(listContainer);
-    }
-  }
+  const formattedDollar = pnlSign + Math.abs(pnlAmount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 
-  let logs = [];
-  try {
-    if (data && data.gain_logs) {
-      logs = typeof data.gain_logs === 'string' ? JSON.parse(data.gain_logs) : data.gain_logs;
-    }
-  } catch (e) {
-    logs = [{ date: "Recent", log: String(data.gain_logs) }];
-  }
-
-  if (!Array.isArray(logs) || logs.length === 0) {
-    logs = [{ date: new Date().toISOString().split('T')[0], log: "No logs recorded yet" }];
-  }
-
-  listContainer.innerHTML = `
-    <div style="font-weight: 600; margin-bottom: 6px; color: var(--green); display: flex; align-items: center; gap: 6px;">
-      <span>📋</span> ACCOUNT GAIN LOGS LIST
-    </div>
-    <div style="display: flex; flex-direction: column; gap: 4px; max-height: 90px; overflow-y: auto;">
-      ${logs.map(item => `
-        <div style="display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-family: monospace;">
-          <span style="color: var(--text-muted);">📅 ${item.date || 'N/A'}</span>
-          <span style="color: var(--green); font-weight: 600;">${item.log || item}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-// REALISTIC SCALPING P&L ENGINE
-function startSmoothPnL(investedAmount) {
-  if (pnlInterval) clearInterval(pnlInterval);
-
-  currentPercent = (Math.random() * 4.0 - 2.0); 
-  let scalpTrendBias = (Math.random() - 0.5) * 0.15; 
-
-  const isRare2PercentEvent = Math.random() < 0.02;
-
-  function updateTicker() {
-    const microStep = (Math.random() * 0.24 - 0.12) + scalpTrendBias;
-    currentPercent += microStep;
-
-    if (currentPercent <= -8.0) {
-      currentPercent = -8.00;
-      scalpTrendBias = 0.12; 
-    } 
-
-    let calculatedPnlDollar = (investedAmount * (currentPercent / 100));
-
-    if (isRare2PercentEvent && calculatedPnlDollar > 1479.00) {
-      calculatedPnlDollar = 1479.00;
-    } else if (!isRare2PercentEvent && calculatedPnlDollar > 350.00) {
-      calculatedPnlDollar = 350.00;
-      scalpTrendBias = -0.10;
-    }
-
-    const formattedPercent = investedAmount > 0 ? ((calculatedPnlDollar / investedAmount) * 100).toFixed(2) : "0.00";
-
-    const pnlElement = document.getElementById('pnl-card');
-    const isPositive = calculatedPnlDollar >= 0;
-    const pnlSign = isPositive ? "+$" : "-$";
-    
-    const formattedDollar = pnlSign + Math.abs(calculatedPnlDollar).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-
-    pnlElement.className = `stat-value ${isPositive ? 'green' : 'red'}`;
-    pnlElement.innerHTML = `${formattedDollar} <span style="font-size: 0.65rem;">(${isPositive ? '+' : ''}${formattedPercent}%)</span>`;
-  }
-
-  updateTicker();
-  pnlInterval = setInterval(updateTicker, 1500);
+  pnlElement.className = `stat-value ${isPositive ? 'green' : 'red'}`;
+  pnlElement.innerHTML = `${formattedDollar} <span style="font-size: 0.65rem;">(${isPositive ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
 }
 
 // Generate Dynamic 4-Hour Position Sets
@@ -495,7 +411,7 @@ function renderTrades() {
     let formattedPrice = "Syncing...";
     if (trade.currentPrice > 0) {
       formattedPrice = trade.currentPrice < 1 
-        ? "$" + trade.currentPrice.tailwindtoFixed(4) 
+        ? "$" + trade.currentPrice.toFixed(4) 
         : "$" + trade.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
@@ -515,7 +431,6 @@ function renderTrades() {
 }
 
 async function logout() {
-  if (pnlInterval) clearInterval(pnlInterval);
   if (binanceSocket) binanceSocket.close();
   await supabaseClient.auth.signOut();
   window.location.reload();
