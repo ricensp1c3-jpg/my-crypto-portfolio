@@ -85,10 +85,8 @@ function update8HourCycleData() {
   
   const seasonWinRate = "82.0";
   document.getElementById('dynamic-winrate').innerText = `${seasonWinRate}%`;
-  document.getElementById('winrate-badge').innerText = `${seasonWinRate}% WIN RATE`;
 
   renderDynamicSignals(seed);
-  renderRealizedTrades();
 }
 
 // Render Exactly 1 Unlocked Signal + 1 Set of 3 Locked Signals with Overlay
@@ -165,27 +163,6 @@ function renderDynamicSignals(seed) {
   `;
 
   document.getElementById('unlocked-signal-box').innerHTML = htmlContent;
-}
-
-// RENDER REALIZED TRADES
-function renderRealizedTrades() {
-  const container = document.getElementById('tp-hits-container');
-  if (!container) return;
-
-  const realizedList = [
-    { pair: "BTC/USDT", exit: "$68,910.00", dollarGain: "+$148.50", pct: "+4.2%", isWin: true, time: "28m ago" },
-    { pair: "ETH/USDT", exit: "$2,682.00", dollarGain: "+$84.20", pct: "+2.8%", isWin: true, time: "1h 10m ago" },
-    { pair: "SOL/USDT", exit: "$148.20", dollarGain: "-$32.00", pct: "-8.00%", isWin: false, time: "2h 05m ago" },
-    { pair: "BNB/USDT", exit: "$589.50", dollarGain: "+$112.00", pct: "+3.6%", isWin: true, time: "3h 25m ago" },
-    { pair: "XRP/USDT", exit: "$0.5640", dollarGain: "+$45.80", pct: "+1.9%", isWin: true, time: "4h 40m ago" }
-  ];
-
-  container.innerHTML = realizedList.map(hit => `
-    <div class="tp-hit-item">
-      <span><b>${hit.pair}</b> <span style="font-size:0.58rem; color:var(--text-muted);">${hit.time}</span></span>
-      <span class="${hit.isWin ? 'green' : 'red'}"><b>${hit.dollarGain}</b> (${hit.pct})</span>
-    </div>
-  `).join('');
 }
 
 function renderTradingViewCharts() {

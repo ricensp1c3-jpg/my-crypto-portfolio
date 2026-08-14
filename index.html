@@ -242,15 +242,6 @@
       position: relative;
     }
 
-    .tp-hit-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.68rem;
-      border-bottom: 1px dashed var(--border-color);
-      padding: 4px 0;
-      font-family: monospace;
-    }
-
     /* Heatmap Grid */
     .heatmap-grid {
       display: grid;
@@ -592,15 +583,6 @@
         
         <!-- DYNAMICALLY RENDERED 1 UNLOCKED + 1 SET OF 3 LOCKED SIGNALS -->
         <div id="unlocked-signal-box"></div>
-      </div>
-
-      <!-- REALIZED TRADES WITH CAPPED SMALL GAINS -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>🎯 Realized Trades (Last 5 Hours)</span>
-          <span id="winrate-badge" class="green" style="font-size: 0.62rem; font-weight: 700;">82% WIN RATE</span>
-        </div>
-        <div id="tp-hits-container"></div>
       </div>
 
       <!-- HEATMAP & LIQUIDATION -->
