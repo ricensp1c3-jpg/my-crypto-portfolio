@@ -91,7 +91,7 @@ function update8HourCycleData() {
   renderRealizedTrades();
 }
 
-// Render 1 Unlocked Signal (1:2 RR) + 3 Staylocked Signals
+// Render Exactly 1 Unlocked Signal (1:2 RR) + 3 Staylocked Signals with overlay banner
 function renderDynamicSignals(seed) {
   const isResistance = seed > 0.5;
   
@@ -100,24 +100,23 @@ function renderDynamicSignals(seed) {
   const activeDir = isResistance ? "SHORT" : "LONG";
   const activeBadge = isResistance ? "badge-short" : "badge-long";
   const activeReason = isResistance 
-    ? "2nd Touch Major Resistance Hit ($69,850)" 
-    : "2nd Touch Major Support Hit ($2,580)";
+    ? "2nd Touch Resistance Hit ($69,850)" 
+    : "2nd Touch Support Hit ($2,580)";
   
-  // Exact 1:2 RR Math (Risk distance = $500, Reward distance = $1000)
   const ep = isResistance ? "$69,820.00" : "$2,585.00";
-  const tp = isResistance ? "$67,820.00" : "$2,785.00"; // 2x Reward spacing
-  const sl = isResistance ? "$70,320.00" : "$2,535.00"; // 1x Risk spacing
+  const tp = isResistance ? "$67,820.00" : "$2,785.00";
+  const sl = isResistance ? "$70,320.00" : "$2,535.00";
 
   let htmlContent = `
-    <div class="signal-card" style="border-left: 3px solid ${isResistance ? 'var(--red)' : 'var(--green)'}; margin-bottom: 8px;">
+    <div class="signal-card" style="border-left: 3px solid ${isResistance ? 'var(--red)' : 'var(--green)'}; margin-bottom: 6px; padding: 6px 8px;">
       <div class="trade-row-top">
-        <span class="symbol-name">${activeSymbol} <span class="badge ${activeBadge}">${activeDir} 25x</span></span>
-        <span class="badge badge-active">ACTIVE 1:2 RR</span>
+        <span class="symbol-name" style="font-size:0.7rem;">${activeSymbol} <span class="badge ${activeBadge}" style="font-size:0.55rem;">${activeDir} 25x</span></span>
+        <span class="badge badge-active" style="font-size:0.5rem;">ACTIVE TRADING SIGNAL</span>
       </div>
-      <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
-        Reason: <b>${activeReason}</b>
+      <div style="font-size: 0.58rem; color: var(--text-muted); margin: 2px 0;">
+        <b>${activeReason}</b>
       </div>
-      <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.62rem; font-family: monospace;">
         <span>EP: <b>${ep}</b></span>
         <span class="green">TP (1:2): <b>${tp}</b></span>
         <span class="red">SL: <b>${sl}</b></span>
@@ -125,24 +124,25 @@ function renderDynamicSignals(seed) {
     </div>
   `;
 
-  // 3 STAYLOCKED SIGNALS
+  // 3 STAYLOCKED SIGNALS CONTAINER WITH OVERLAY BANNER
   const lockedPool = [
-    { symbol: "SOL/USDT", dir: "LONG 20x", rr: "1:2.5" },
-    { symbol: "BNB/USDT", dir: "SHORT 15x", rr: "1:2.0" },
-    { symbol: "XRP/USDT", dir: "LONG 30x", rr: "1:2.2" }
+    { symbol: "SOL/USDT", dir: "LONG 20x" },
+    { symbol: "BNB/USDT", dir: "SHORT 15x" },
+    { symbol: "XRP/USDT", dir: "LONG 30x" }
   ];
 
+  let lockedHTML = '';
   lockedPool.forEach(lock => {
-    htmlContent += `
-      <div class="signal-card" style="border-left: 3px solid var(--text-muted); opacity: 0.5; filter: blur(3px); pointer-events: none; margin-bottom: 8px;">
+    lockedHTML += `
+      <div class="signal-card" style="border-left: 3px solid var(--text-muted); margin-bottom: 6px; padding: 6px 8px;">
         <div class="trade-row-top">
-          <span class="symbol-name">${lock.symbol} <span class="badge badge-long">${lock.dir}</span></span>
-          <span class="badge" style="background: #333; color: #aaa;">LOCKED VIP</span>
+          <span class="symbol-name" style="font-size:0.7rem;">${lock.symbol} <span class="badge badge-long" style="font-size:0.55rem;">${lock.dir}</span></span>
+          <span class="badge" style="background: #333; color: #aaa; font-size:0.5rem;">LOCKED VIP</span>
         </div>
-        <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
-          Reason: <b>Premium Session Setup (${lock.rr} RR)</b>
+        <div style="font-size: 0.58rem; color: var(--text-muted); margin: 2px 0;">
+          <b>Premium Session Setup</b>
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.62rem; font-family: monospace;">
           <span>EP: <b>$---.--</b></span>
           <span class="green">TP: <b>$---.--</b></span>
           <span class="red">SL: <b>$---.--</b></span>
@@ -150,6 +150,19 @@ function renderDynamicSignals(seed) {
       </div>
     `;
   });
+
+  htmlContent += `
+    <div style="position: relative;">
+      <div style="filter: blur(4px); pointer-events: none; opacity: 0.4;">
+        ${lockedHTML}
+      </div>
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; z-index: 2;">
+        <div style="font-size: 1.1rem; margin-bottom: 2px;">🔒</div>
+        <div style="font-size: 0.75rem; font-weight: bold; color: #fff; margin-bottom: 4px;">3 Premium Signals Locked</div>
+        <button style="background: #f3ba2f; color: #000; border: none; padding: 4px 10px; font-size: 0.65rem; font-weight: bold; border-radius: 4px; cursor: pointer;">Buy Monthly Signal for More</button>
+      </div>
+    </div>
+  `;
 
   document.getElementById('unlocked-signal-box').innerHTML = htmlContent;
 }
