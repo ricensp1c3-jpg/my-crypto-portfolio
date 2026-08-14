@@ -272,10 +272,17 @@ async function handleAuth() {
 }
 
 async function createUserProfileRow(userId, username) {
-  // Explicitly ensuring invested_amount is set to 0 on new sign-up
   await supabaseClient
     .from('user_profiles')
-    .upsert([{ id: userId, username: username, invested_amount: 0, pnl_amount: 0, pnl_percentage: 0 }], { onConflict: 'id' });
+    .upsert([{ 
+      id: userId, 
+      username: username, 
+      invested_amount: 0, 
+      pnl_amount: 0, 
+      pnl_percentage: 0,
+      gain_logs: "No recent gains logged",
+      log_date: new Date().toISOString().split('T')[0]
+    }], { onConflict: 'id' });
 }
 
 async function loadUserProfile(user) {
@@ -288,8 +295,6 @@ async function loadUserProfile(user) {
     data = res.data;
   }
 
-  // If existing rows in Supabase still have 1000 from an older default rule, we can force-patch them to 0 here if desired, 
-  // or respect the database value. Let's explicitly check and normalize if it's coming from an old default row:
   if (data && Number(data.invested_amount) === 1000) {
     data.invested_amount = 0;
     await supabaseClient.from('user_profiles').update({ invested_amount: 0 }).eq('id', user.id);
@@ -305,8 +310,34 @@ async function loadUserProfile(user) {
   const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 0;
   document.getElementById('invested').innerText = formatCurrency(invested);
 
+  // RENDER GAIN LOGS & DATE ABOVE TERMINAL NOTICE
+  renderGainLogsAndDate(data);
+
   startSmoothPnL(invested);
   initRealTrades();
+}
+
+function renderGainLogsAndDate(data) {
+  let bannerContainer = document.getElementById('gain-logs-banner');
+  
+  // If the banner element doesn't exist in HTML yet, create and insert it right above the terminal notice
+  if (!bannerContainer) {
+    bannerContainer = document.createElement('div');
+    bannerContainer.id = 'gain-logs-banner';
+    bannerContainer.style.cssText = "background: rgba(16, 185, 129, 0.1); border: 1px solid var(--green); padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; color: var(--text-main);";
+    
+    // Find the terminal notice element or primary container to prepend above it
+    const noticeElement = document.querySelector('.terminal-notice') || document.querySelector('.main-content') || document.body;
+    noticeElement.parentNode.insertBefore(bannerContainer, noticeElement);
+  }
+
+  const gainLogs = (data && data.gain_logs) ? data.gain_logs : "+$0.00 Daily PnL Target Achieved";
+  const logDate = (data && data.log_date) ? data.log_date : new Date().toISOString().split('T')[0];
+
+  bannerContainer.innerHTML = `
+    <span>📊 <b>Gain Log:</b> ${gainLogs}</span>
+    <span style="font-family: monospace; color: var(--text-muted);">📅 Date: ${logDate}</span>
+  `;
 }
 
 // REALISTIC SCALPING P&L ENGINE
