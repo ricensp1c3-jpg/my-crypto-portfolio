@@ -126,9 +126,9 @@ function renderDynamicSignals(seed) {
 
   // 3 LOCKED SIGNALS CONTAINER WITH OVERLAY BANNER
   const lockedPool = [
-    { symbol: "SOL/USDT", dir: "LONG 20x" },
-    { symbol: "BNB/USDT", dir: "SHORT 15x" },
-    { symbol: "XRP/USDT", dir: "LONG 30x" }
+    { symbol: "SOL/USDT", dir: "LONG 20x", reason: "2nd Touch Major Support Hit", ep: "$2,640.00", tp: "$2,780.00", sl: "$2,590.00" },
+    { symbol: "BNB/USDT", dir: "SHORT 15x", reason: "2nd Touch Major Resistance Hit", ep: "$154.50", tp: "$146.00", sl: "$158.20" },
+    { symbol: "XRP/USDT", dir: "LONG 30x", reason: "2nd Touch Support Bounce", ep: "$580.00", tp: "$615.00", sl: "$568.00" }
   ];
 
   let lockedHTML = '';
@@ -140,12 +140,12 @@ function renderDynamicSignals(seed) {
           <span class="badge" style="background: #333; color: #aaa; font-size:0.5rem;">LOCKED VIP</span>
         </div>
         <div style="font-size: 0.58rem; color: var(--text-muted); margin: 2px 0;">
-          <b>Premium Session Setup</b>
+          <b>${lock.reason}</b>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 0.62rem; font-family: monospace;">
-          <span>EP: <b>$---.--</b></span>
-          <span class="green">TP: <b>$---.--</b></span>
-          <span class="red">SL: <b>$---.--</b></span>
+          <span>EP: <b>${lock.ep}</b></span>
+          <span class="green">TP: <b>${lock.tp}</b></span>
+          <span class="red">SL: <b>${lock.sl}</b></span>
         </div>
       </div>
     `;
@@ -159,7 +159,7 @@ function renderDynamicSignals(seed) {
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; z-index: 2;">
         <div style="font-size: 1.1rem; margin-bottom: 2px;">🔒</div>
         <div style="font-size: 0.75rem; font-weight: bold; color: #fff; margin-bottom: 4px;">3 Premium Signals Locked</div>
-        <button style="background: #f3ba2f; color: #000; border: none; padding: 4px 10px; font-size: 0.65rem; font-weight: bold; border-radius: 4px; cursor: pointer;">Buy Monthly Signal for More</button>
+        <button onclick="alert('Redirecting to Signal VIP Subscription...')" style="background: #f3ba2f; color: #000; border: none; padding: 4px 10px; font-size: 0.65rem; font-weight: bold; border-radius: 4px; cursor: pointer;">Buy Monthly Signal for More</button>
       </div>
     </div>
   `;
