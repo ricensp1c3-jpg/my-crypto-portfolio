@@ -10,8 +10,6 @@ const { createClient } = window.supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let isSignUpMode = false;
-let pnlInterval = null;
-let currentPercent = 0.0;
 let binanceSocket = null;
 
 const TICKER_POOL = [
@@ -125,7 +123,7 @@ function renderDynamicSignal(seed) {
   `;
 }
 
-// RENDER REALIZED TRADES (Strictly Small Dollar Amounts: Max $150 Gain per Trade)
+// RENDER REALIZED TRADES
 function renderRealizedTrades() {
   const container = document.getElementById('tp-hits-container');
   if (!container) return;
@@ -277,9 +275,8 @@ async function createUserProfileRow(userId, username) {
     .upsert([{ 
       id: userId, 
       username: username, 
-      invested_amount: 0, 
-      pnl_amount: 0, 
-      pnl_percentage: 0
+      invested_amount: 1000, // base capital multiplier for auto calculation
+      pnl_percentage: 0.00   // you can enter any % here or directly in Supabase table
     }], { onConflict: 'id' });
 }
 
@@ -293,11 +290,6 @@ async function loadUserProfile(user) {
     data = res.data;
   }
 
-  if (data && Number(data.invested_amount) === 1000) {
-    data.invested_amount = 0;
-    await supabaseClient.from('user_profiles').update({ invested_amount: 0 }).eq('id', user.id);
-  }
-
   const finalUsername = (data && data.username) ? data.username : (user.email ? user.email.split('@')[0] : "Trader");
   
   document.getElementById('account-title').innerText = `${finalUsername.toUpperCase()}'S TRADING ACCOUNT`;
@@ -305,20 +297,20 @@ async function loadUserProfile(user) {
   const uidString = user.id ? user.id.replace(/-/g, '').substring(0, 8).toUpperCase() : "88219042";
   document.getElementById('account-uid').innerText = `UID# ${uidString}`;
   
-  const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 0;
+  const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 1000;
   document.getElementById('invested').innerText = formatCurrency(invested);
 
-  // FIX P&L DIRECTLY FROM SUPABASE PNL_AMOUNT COLUMN
-  const fixedPnlAmount = (data && data.pnl_amount !== null && data.pnl_amount !== undefined) ? Number(data.pnl_amount) : 0;
-  const fixedPnlPercent = (data && data.pnl_percentage !== null && data.pnl_percentage !== undefined) ? Number(data.pnl_percentage) : 0;
+  // AUTO-CALCULATE P&L AMOUNT FROM SUPABASE PNL_PERCENTAGE
+  const pnlPercent = (data && data.pnl_percentage !== null && data.pnl_percentage !== undefined) ? Number(data.pnl_percentage) : 0;
+  const calculatedPnlAmount = invested * (pnlPercent / 100);
   
-  renderFixedPnL(fixedPnlAmount, fixedPnlPercent);
+  renderAutoCalculatedPnL(calculatedPnlAmount, pnlPercent);
 
   initRealTrades();
 }
 
-// RENDER FIXED P&L FROM SUPABASE DATABASE VALUES
-function renderFixedPnL(pnlAmount, pnlPercent) {
+// RENDER AUTO-CALCULATED P&L
+function renderAutoCalculatedPnL(pnlAmount, pnlPercent) {
   const pnlElement = document.getElementById('pnl-card');
   if (!pnlElement) return;
 
@@ -408,7 +400,7 @@ function renderTrades() {
       ? `<span class="badge badge-stopped">CUT LOSS (-8%)</span>`
       : `<span class="badge badge-active">ACTIVE</span>`;
 
-    let formattedPrice = "Syncing...";
+    let formattedPrice = "Syncing";
     if (trade.currentPrice > 0) {
       formattedPrice = trade.currentPrice < 1 
         ? "$" + trade.currentPrice.toFixed(4) 
