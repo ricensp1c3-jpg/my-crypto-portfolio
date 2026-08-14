@@ -44,14 +44,14 @@ function formatCurrency(amount) {
   return "$" + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// 4-HOUR ROTATION SEED ENGINE
-function get4HourCycleSeed() {
-  const FOUR_HOURS = 4 * 60 * 60 * 1000;
+// 8-HOUR ROTATION SEED ENGINE
+function get8HourCycleSeed() {
+  const EIGHT_HOURS = 8 * 60 * 60 * 1000;
   const currentTimestamp = Date.now();
-  const lastCycle = localStorage.getItem('last_4h_cycle_time');
+  const lastCycle = localStorage.getItem('last_8h_cycle_time');
 
-  if (!lastCycle || (currentTimestamp - parseInt(lastCycle)) > FOUR_HOURS) {
-    localStorage.setItem('last_4h_cycle_time', currentTimestamp.toString());
+  if (!lastCycle || (currentTimestamp - parseInt(lastCycle)) > EIGHT_HOURS) {
+    localStorage.setItem('last_8h_cycle_time', currentTimestamp.toString());
     localStorage.setItem('cycle_seed', Math.random().toString());
   }
 
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderTradingViewCharts();
   renderLeaderboard();
-  update4HourCycleData();
+  update8HourCycleData();
 
   const { data: { session } } = await supabaseClient.auth.getSession();
   
@@ -79,48 +79,79 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Update 4-Hour Shift Data (Fixed 82.0% Win Rate)
-function update4HourCycleData() {
-  const seed = get4HourCycleSeed();
+// Update 8-Hour Shift Data & Signals
+function update8HourCycleData() {
+  const seed = get8HourCycleSeed();
   
   const seasonWinRate = "82.0";
   document.getElementById('dynamic-winrate').innerText = `${seasonWinRate}%`;
   document.getElementById('winrate-badge').innerText = `${seasonWinRate}% WIN RATE`;
 
-  renderDynamicSignal(seed);
+  renderDynamicSignals(seed);
   renderRealizedTrades();
 }
 
-// Render Unlocked Signal based on 2nd Touch S/R
-function renderDynamicSignal(seed) {
+// Render 1 Unlocked Signal (1:2 RR) + 3 Staylocked Signals
+function renderDynamicSignals(seed) {
   const isResistance = seed > 0.5;
-  const symbol = isResistance ? "BTC/USDT" : "ETH/USDT";
-  const direction = isResistance ? "SHORT" : "LONG";
-  const badgeClass = isResistance ? "badge-short" : "badge-long";
-  const reason = isResistance 
+  
+  // UNLOCKED SIGNAL (1:2 Risk-to-Reward Ratio)
+  const activeSymbol = isResistance ? "BTC/USDT" : "ETH/USDT";
+  const activeDir = isResistance ? "SHORT" : "LONG";
+  const activeBadge = isResistance ? "badge-short" : "badge-long";
+  const activeReason = isResistance 
     ? "2nd Touch Major Resistance Hit ($69,850)" 
     : "2nd Touch Major Support Hit ($2,580)";
   
+  // Exact 1:2 RR Math (Risk distance = $500, Reward distance = $1000)
   const ep = isResistance ? "$69,820.00" : "$2,585.00";
-  const tp = isResistance ? "$68,400.00" : "$2,720.00";
-  const sl = isResistance ? "$70,350.00" : "$2,520.00";
+  const tp = isResistance ? "$67,820.00" : "$2,785.00"; // 2x Reward spacing
+  const sl = isResistance ? "$70,320.00" : "$2,535.00"; // 1x Risk spacing
 
-  document.getElementById('unlocked-signal-box').innerHTML = `
-    <div class="signal-card" style="border-left: 3px solid ${isResistance ? 'var(--red)' : 'var(--green)'};">
+  let htmlContent = `
+    <div class="signal-card" style="border-left: 3px solid ${isResistance ? 'var(--red)' : 'var(--green)'}; margin-bottom: 8px;">
       <div class="trade-row-top">
-        <span class="symbol-name">${symbol} <span class="badge ${badgeClass}">${direction} 25x</span></span>
-        <span class="badge badge-active">ACTIVE SIGNAL</span>
+        <span class="symbol-name">${activeSymbol} <span class="badge ${activeBadge}">${activeDir} 25x</span></span>
+        <span class="badge badge-active">ACTIVE 1:2 RR</span>
       </div>
       <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
-        Reason: <b>${reason}</b>
+        Reason: <b>${activeReason}</b>
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
         <span>EP: <b>${ep}</b></span>
-        <span class="green">TP: <b>${tp}</b></span>
+        <span class="green">TP (1:2): <b>${tp}</b></span>
         <span class="red">SL: <b>${sl}</b></span>
       </div>
     </div>
   `;
+
+  // 3 STAYLOCKED SIGNALS
+  const lockedPool = [
+    { symbol: "SOL/USDT", dir: "LONG 20x", rr: "1:2.5" },
+    { symbol: "BNB/USDT", dir: "SHORT 15x", rr: "1:2.0" },
+    { symbol: "XRP/USDT", dir: "LONG 30x", rr: "1:2.2" }
+  ];
+
+  lockedPool.forEach(lock => {
+    htmlContent += `
+      <div class="signal-card" style="border-left: 3px solid var(--text-muted); opacity: 0.5; filter: blur(3px); pointer-events: none; margin-bottom: 8px;">
+        <div class="trade-row-top">
+          <span class="symbol-name">${lock.symbol} <span class="badge badge-long">${lock.dir}</span></span>
+          <span class="badge" style="background: #333; color: #aaa;">LOCKED VIP</span>
+        </div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); margin: 3px 0;">
+          Reason: <b>Premium Session Setup (${lock.rr} RR)</b>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; font-family: monospace;">
+          <span>EP: <b>$---.--</b></span>
+          <span class="green">TP: <b>$---.--</b></span>
+          <span class="red">SL: <b>$---.--</b></span>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById('unlocked-signal-box').innerHTML = htmlContent;
 }
 
 // RENDER REALIZED TRADES
@@ -275,8 +306,8 @@ async function createUserProfileRow(userId, username) {
     .upsert([{ 
       id: userId, 
       username: username, 
-      invested_amount: 1000, // base capital multiplier for auto calculation
-      pnl_percentage: 0.00   // you can enter any % here or directly in Supabase table
+      invested_amount: 1000, 
+      pnl_percentage: 0.00 
     }], { onConflict: 'id' });
 }
 
@@ -300,16 +331,15 @@ async function loadUserProfile(user) {
   const invested = (data && data.invested_amount !== null && data.invested_amount !== undefined) ? Number(data.invested_amount) : 1000;
   document.getElementById('invested').innerText = formatCurrency(invested);
 
-  // AUTO-CALCULATE P&L AMOUNT FROM SUPABASE PNL_PERCENTAGE
   const pnlPercent = (data && data.pnl_percentage !== null && data.pnl_percentage !== undefined) ? Number(data.pnl_percentage) : 0;
   const calculatedPnlAmount = invested * (pnlPercent / 100);
   
   renderAutoCalculatedPnL(calculatedPnlAmount, pnlPercent);
+  setupRealtimeSync(user.id);
 
   initRealTrades();
 }
 
-// RENDER AUTO-CALCULATED P&L
 function renderAutoCalculatedPnL(pnlAmount, pnlPercent) {
   const pnlElement = document.getElementById('pnl-card');
   if (!pnlElement) return;
@@ -326,9 +356,32 @@ function renderAutoCalculatedPnL(pnlAmount, pnlPercent) {
   pnlElement.innerHTML = `${formattedDollar} <span style="font-size: 0.65rem;">(${isPositive ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
 }
 
-// Generate Dynamic 4-Hour Position Sets
+function setupRealtimeSync(userId) {
+  supabaseClient
+    .channel('public:user_profiles')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'user_profiles',
+        filter: `id=eq.${userId}`
+      },
+      (payload) => {
+        const updatedData = payload.new;
+        const invested = updatedData.invested_amount !== null ? Number(updatedData.invested_amount) : 1000;
+        const pnlPercent = updatedData.pnl_percentage !== null ? Number(updatedData.pnl_percentage) : 0;
+        const calculatedPnlAmount = invested * (pnlPercent / 100);
+        
+        renderAutoCalculatedPnL(calculatedPnlAmount, pnlPercent);
+      }
+    )
+    .subscribe();
+}
+
+// Generate Dynamic 8-Hour Position Sets
 function generateTradeSetup(tickerObj) {
-  const seed = get4HourCycleSeed();
+  const seed = get8HourCycleSeed();
   const isLong = (Math.random() + seed) % 1 > 0.45;
 
   return {
@@ -345,7 +398,7 @@ function generateTradeSetup(tickerObj) {
 }
 
 function initRealTrades() {
-  const seed = get4HourCycleSeed();
+  const seed = get8HourCycleSeed();
   const shuffled = [...TICKER_POOL].sort((a, b) => (a.symbol.charCodeAt(0) * seed) - (b.symbol.charCodeAt(0) * seed));
   currentTrades = shuffled.slice(0, 3).map(t => generateTradeSetup(t));
   connectBinanceWebSocket();
