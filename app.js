@@ -91,7 +91,7 @@ function update8HourCycleData() {
   renderRealizedTrades();
 }
 
-// Render Exactly 1 Unlocked Signal + 3 Locked Signals with Overlay
+// Render Exactly 1 Unlocked Signal + 1 Set of 3 Locked Signals with Overlay
 function renderDynamicSignals(seed) {
   const isResistance = seed > 0.5;
   
@@ -124,7 +124,7 @@ function renderDynamicSignals(seed) {
     </div>
   `;
 
-  // 3 LOCKED SIGNALS CONTAINER WITH OVERLAY BANNER
+  // 3 LOCKED SIGNALS CONTAINER WITH SINGLE OVERLAY BANNER
   const lockedPool = [
     { symbol: "SOL/USDT", dir: "LONG 20x", reason: "2nd Touch Major Support Hit", ep: "$2,640.00", tp: "$2,780.00", sl: "$2,590.00" },
     { symbol: "BNB/USDT", dir: "SHORT 15x", reason: "2nd Touch Major Resistance Hit", ep: "$154.50", tp: "$146.00", sl: "$158.20" },
@@ -153,7 +153,7 @@ function renderDynamicSignals(seed) {
 
   htmlContent += `
     <div style="position: relative;">
-      <div style="filter: blur(4px); pointer-events: none; opacity: 0.4;">
+      <div style="filter: blur(4px); pointer-events: none; opacity: 0.35;">
         ${lockedHTML}
       </div>
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; z-index: 2;">

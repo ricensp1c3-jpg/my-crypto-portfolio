@@ -242,36 +242,6 @@
       position: relative;
     }
 
-    .signal-locked {
-      filter: blur(3.5px);
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .signal-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(11, 14, 17, 0.65);
-      z-index: 5;
-      border-radius: 4px;
-    }
-
-    .btn-buy-signal {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 3px;
-      padding: 4px 8px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 4px;
-    }
-
     .tp-hit-item {
       display: flex;
       justify-content: space-between;
@@ -441,7 +411,6 @@
         order: 1;
       }
 
-      /* Chart placed below the sidebar content on mobile */
       .chart-box {
         display: block !important;
         width: 100%;
@@ -466,12 +435,10 @@
         display: none !important;
       }
 
-      /* Hide desktop logout position inside sidebar on mobile */
       .sidebar .btn-logout {
         display: none !important;
       }
 
-      /* Mobile Log Out Container placed at absolute bottom */
       .mobile-logout-wrapper {
         display: block !important;
         width: 100%;
@@ -482,7 +449,6 @@
       }
     }
 
-    /* Hidden by default on desktop */
     .mobile-logout-wrapper {
       display: none;
     }
@@ -618,47 +584,14 @@
         </table>
       </div>
 
-      <!-- REAL TRADING SIGNALS PANEL -->
+      <!-- ACTIVE TRADING SIGNAL PANEL -->
       <div class="panel-box">
         <div class="section-title">
-          <span>📡 Real Trading Signal (2nd Touch Level)</span>
+          <span>📡 ACTIVE TRADING SIGNAL</span>
         </div>
         
-        <!-- UNLOCKED SIGNAL -->
+        <!-- DYNAMICALLY RENDERED 1 UNLOCKED + 1 SET OF 3 LOCKED SIGNALS -->
         <div id="unlocked-signal-box"></div>
-
-        <!-- 3 LOCKED SIGNALS -->
-        <div style="position: relative;">
-          <div class="signal-card signal-locked">
-            <div class="trade-row-top">
-              <span class="symbol-name">ETH/USDT <span class="badge badge-long">LONG 20x</span></span>
-            </div>
-            <div style="font-size: 0.65rem;">Reason: 2nd Touch Major Support Hit</div>
-            <div style="font-size: 0.68rem;">EP: $2,640.00 | TP: $2,780.00 | SL: $2,590.00</div>
-          </div>
-
-          <div class="signal-card signal-locked">
-            <div class="trade-row-top">
-              <span class="symbol-name">SOL/USDT <span class="badge badge-short">SHORT 30x</span></span>
-            </div>
-            <div style="font-size: 0.65rem;">Reason: 2nd Touch Major Resistance Hit</div>
-            <div style="font-size: 0.68rem;">EP: $154.50 | TP: $146.00 | SL: $158.20</div>
-          </div>
-
-          <div class="signal-card signal-locked">
-            <div class="trade-row-top">
-              <span class="symbol-name">BNB/USDT <span class="badge badge-long">LONG 15x</span></span>
-            </div>
-            <div style="font-size: 0.65rem;">Reason: 2nd Touch Support Bounce</div>
-            <div style="font-size: 0.68rem;">EP: $580.00 | TP: $615.00 | SL: $568.00</div>
-          </div>
-
-          <div class="signal-overlay">
-            <span style="font-size: 1.2rem;">🔒</span>
-            <span style="font-size: 0.72rem; font-weight: 700; color: #FFF; margin-top: 2px;">3 Premium Signals Locked</span>
-            <button class="btn-buy-signal" onclick="alert('Redirecting to Signal VIP Subscription...')">Buy Monthly Signal for More</button>
-          </div>
-        </div>
       </div>
 
       <!-- REALIZED TRADES WITH CAPPED SMALL GAINS -->
@@ -725,7 +658,7 @@
       </div>
     </div>
 
-    <!-- MOBILE LOG OUT WRAPPER (Appears at absolute bottom below chart on mobile) -->
+    <!-- MOBILE LOG OUT WRAPPER -->
     <div class="mobile-logout-wrapper">
       <button class="btn-logout" style="margin-top: 0;" onclick="logout()">Log Out Terminal</button>
     </div>
