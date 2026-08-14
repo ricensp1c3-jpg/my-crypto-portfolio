@@ -91,7 +91,7 @@ function update8HourCycleData() {
   renderRealizedTrades();
 }
 
-// Render Exactly 1 Unlocked Signal (1:2 RR) + 3 Staylocked Signals with overlay banner
+// Render Exactly 1 Unlocked Signal + 3 Locked Signals with Overlay
 function renderDynamicSignals(seed) {
   const isResistance = seed > 0.5;
   
@@ -111,7 +111,7 @@ function renderDynamicSignals(seed) {
     <div class="signal-card" style="border-left: 3px solid ${isResistance ? 'var(--red)' : 'var(--green)'}; margin-bottom: 6px; padding: 6px 8px;">
       <div class="trade-row-top">
         <span class="symbol-name" style="font-size:0.7rem;">${activeSymbol} <span class="badge ${activeBadge}" style="font-size:0.55rem;">${activeDir} 25x</span></span>
-        <span class="badge badge-active" style="font-size:0.5rem;">ACTIVE TRADING SIGNAL</span>
+        <span class="badge badge-active" style="font-size:0.5rem;">ACTIVE 1:2 RR</span>
       </div>
       <div style="font-size: 0.58rem; color: var(--text-muted); margin: 2px 0;">
         <b>${activeReason}</b>
@@ -124,7 +124,7 @@ function renderDynamicSignals(seed) {
     </div>
   `;
 
-  // 3 STAYLOCKED SIGNALS CONTAINER WITH OVERLAY BANNER
+  // 3 LOCKED SIGNALS CONTAINER WITH OVERLAY BANNER
   const lockedPool = [
     { symbol: "SOL/USDT", dir: "LONG 20x" },
     { symbol: "BNB/USDT", dir: "SHORT 15x" },
