@@ -378,7 +378,25 @@
 
     .hidden { display: none !important; }
 
-    /* MOBILE RESPONSIVENESS */
+
+    .pax-banner { border: 1px solid var(--accent); background: linear-gradient(120deg, rgba(240,185,11,.13), rgba(24,26,32,.95)); border-radius: 6px; padding: 10px; }
+    .pax-banner-top, .pax-banner-foot { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    .pax-symbol { font-weight:900; letter-spacing:.5px; color:var(--accent); font-size:.82rem; }
+    .pax-funded { font-size:.62rem; font-weight:800; color:var(--green); text-align:right; }
+    .pax-progress { height:7px; margin:8px 0 5px; background:#343943; border-radius:20px; overflow:hidden; }
+    .pax-progress span { display:block; height:100%; background:var(--accent); border-radius:20px; }
+    .pax-banner-foot { font-size:.65rem; color:var(--text-muted); }
+    .admin-tools { border:1px dashed var(--accent); padding:8px; border-radius:5px; }
+    .admin-hint { font-size:.62rem; color:var(--text-muted); margin-top:6px; line-height:1.4; }
+    .signals-locked { text-align:center; padding:14px 8px; color:var(--text-muted); }
+    .signals-locked b { display:block; color:var(--text-main); margin:5px 0; font-size:.8rem; }
+    .signals-locked p { font-size:.7rem; line-height:1.45; margin-bottom:10px; }
+    .subscribe-button { display:inline-block; text-decoration:none; background:var(--accent); color:#111; font-size:.7rem; font-weight:800; padding:8px 12px; border-radius:4px; }
+    .signal-table { width:100%; border-collapse:collapse; font-size:.68rem; }
+    .signal-table td { border-bottom:1px solid var(--border-color); padding:7px 3px; }
+    .signal-table th { text-align:left; color:var(--text-muted); padding:5px 3px; }
+    .admin-tools .btn-auth { margin-top:0; }
+\n    /* MOBILE RESPONSIVENESS */
     @media (max-width: 900px) {
       html, body {
         overflow-x: hidden;
@@ -477,6 +495,17 @@
         </div>
       </div>
 
+      <!-- $PAX PRESALE BANNER -->
+      <div class="pax-banner" id="pax-banner">
+        <div class="pax-banner-top"><span class="pax-symbol">$PAX PRESALE</span><span class="pax-funded" id="pax-funded-label">100% FULLY FUNDED</span></div>
+        <div class="pax-progress"><span id="pax-progress-fill" style="width:100%"></span></div>
+        <div class="pax-banner-foot"><span id="pax-presale-status">Funding target reached</span><span id="pax-progress-label">100%</span></div>
+      </div>
+      <div class="admin-tools hidden" id="admin-tools">
+        <button class="btn-auth" type="button" onclick="editSiteContent()">Edit Site Information</button>
+        <p class="admin-hint">Admin mode · Manage signals and subscriptions in Supabase Table Editor.</p>
+      </div>
+
       <!-- VIEW SWITCHER -->
       <div class="control-row">
         <select id="layout-select" onchange="changeLayout(this.value)">
@@ -519,70 +548,17 @@
         • Investment slots: Fully allocated 25/25.
       </div>
 
-      <!-- ACTIVE POSITIONS -->
-      <div class="section-title">
-        <span><span class="live-dot"></span>Active Scalp Positions</span>
-        <span style="font-size: 0.62rem; color: var(--text-muted);" id="cycle-timer">4H ROTATION: ACTIVE</span>
-      </div>
-
-      <div id="trades-container" class="trades-list"></div>
-
-      <!-- MULTI-TIMEFRAME TECHNICAL CONFLUENCE MATRIX -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>📊 Technical Confluence Matrix</span>
+      <!-- SUBSCRIBER-ONLY SIGNALS -->
+      <div class="panel-box" id="signals-panel">
+        <div class="section-title"><span>📡 PREMIUM TRADING SIGNALS</span></div>
+        <div id="signals-access">
+          <div class="signals-locked">
+            <div style="font-size:1.4rem">🔒</div>
+            <b>Subscriber access required</b>
+            <p>Trading signals are hidden until your account has an active subscription.</p>
+            <a id="subscribe-link" href="#" target="_blank" rel="noopener" class="subscribe-button">View Subscription Options</a>
+          </div>
         </div>
-        <table class="confluence-table">
-          <thead>
-            <tr>
-              <th>Asset</th>
-              <th>15m</th>
-              <th>1h</th>
-              <th>4h</th>
-              <th>1D</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><b>BTC</b></td>
-              <td class="green">BUY</td>
-              <td class="green">BUY</td>
-              <td class="green">STRONG</td>
-              <td class="green">BUY</td>
-            </tr>
-            <tr>
-              <td><b>ETH</b></td>
-              <td class="green">BUY</td>
-              <td class="red">NEUTRAL</td>
-              <td class="green">BUY</td>
-              <td class="green">STRONG</td>
-            </tr>
-            <tr>
-              <td><b>SOL</b></td>
-              <td class="red">SELL</td>
-              <td class="red">SELL</td>
-              <td class="red">NEUTRAL</td>
-              <td class="green">BUY</td>
-            </tr>
-            <tr>
-              <td><b>BNB</b></td>
-              <td class="green">BUY</td>
-              <td class="green">BUY</td>
-              <td class="green">BUY</td>
-              <td class="green">STRONG</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ACTIVE TRADING SIGNAL PANEL -->
-      <div class="panel-box">
-        <div class="section-title">
-          <span>📡 ACTIVE TRADING SIGNAL</span>
-        </div>
-        
-        <!-- DYNAMICALLY RENDERED 1 UNLOCKED + 1 SET OF 3 LOCKED SIGNALS -->
-        <div id="unlocked-signal-box"></div>
       </div>
 
       <!-- HEATMAP & LIQUIDATION -->
